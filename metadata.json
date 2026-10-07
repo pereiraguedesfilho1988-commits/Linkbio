@@ -1,0 +1,8 @@
+{
+  "name": "VoidGradient",
+  "description": "A minimalist web app providing a clean, distraction-free interface with a sleek black and gray gradient background.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
