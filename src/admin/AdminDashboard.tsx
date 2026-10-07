@@ -419,7 +419,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onViewPublic }) 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-zinc-300 mb-1">
-                    Nome Completo
+                    Nome da Pessoa / Profissional
                   </label>
                   <input
                     type="text"
@@ -428,11 +428,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onViewPublic }) 
                       updateConfig((prev) => ({
                         ...prev,
                         profile: { ...prev.profile, fullName: e.target.value },
-                        about: { ...prev.about, fullName: e.target.value },
                       }))
                     }
+                    placeholder="Ex: José Pereira"
                     className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500"
                   />
+                  <p className="text-[10px] text-zinc-500 mt-1">
+                    Exibido no Perfil Profissional, vCard, WhatsApp e QR Code.
+                  </p>
                 </div>
 
                 <div>
@@ -910,8 +913,53 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onViewPublic }) 
                   Modal Sobre Mim & Trajetória Institucional
                 </h2>
                 <p className="text-xs text-zinc-400 mt-1">
-                  Edite todos os textos do modal institucional que abre quando o visitante clica em &quot;Ver trajetória & empresa&quot;.
+                  Edite todos os textos do bloco e modal institucional sobre trajetória, empresa e metodologia.
                 </p>
+              </div>
+
+              {/* Título / Identificação do Bloco & Modal Sobre */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    Nome / Título do Bloco & Modal Sobre
+                  </label>
+                  <input
+                    type="text"
+                    value={config.about.fullName}
+                    onChange={(e) =>
+                      updateConfig((prev) => ({
+                        ...prev,
+                        about: { ...prev.about, fullName: e.target.value },
+                      }))
+                    }
+                    placeholder="Ex: Pereira Media & Growth Digital ou Nome Completo"
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500"
+                  />
+                  <p className="text-[10px] text-zinc-500 mt-1">
+                    Aparece no topo do bloco Sobre (ao lado da foto) e no cabeçalho do Modal Sobre. Pode ser o nome da sua empresa ou seu nome.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    Subtítulo / Especialidade no Sobre
+                  </label>
+                  <input
+                    type="text"
+                    value={config.about.role}
+                    onChange={(e) =>
+                      updateConfig((prev) => ({
+                        ...prev,
+                        about: { ...prev.about, role: e.target.value },
+                      }))
+                    }
+                    placeholder="Ex: Marketing & Social Media"
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500"
+                  />
+                  <p className="text-[10px] text-zinc-500 mt-1">
+                    Subtítulo verde exibido logo abaixo do título do Sobre.
+                  </p>
+                </div>
               </div>
 
               <div>

@@ -658,7 +658,7 @@ export const PublicPage: React.FC<PublicPageProps> = ({ onOpenAdmin }) => {
             {/* Bloco de Identificação: Acima do modal Sobre */}
             <div className="mb-2 sm:mb-2.5 px-1">
               <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight">
-                {config.profile.fullName}
+                {config.about.fullName || config.profile.fullName}
               </h2>
               <p className="text-xs sm:text-sm font-semibold text-emerald-400 mt-0.5">
                 {config.about.role || config.profile.roles[0]}
@@ -1455,7 +1455,7 @@ export const PublicPage: React.FC<PublicPageProps> = ({ onOpenAdmin }) => {
                 <div className="flex items-start justify-between gap-4 mb-5">
                   <div>
                     <h3 className="text-xl sm:text-2xl font-bold text-white">
-                      {config.profile.fullName}
+                      {config.about.fullName || config.profile.fullName}
                     </h3>
                     <p className="text-xs sm:text-sm font-semibold text-emerald-400">
                       {config.about.role || config.profile.roles[0]}
