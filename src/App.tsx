@@ -1,5 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useSpring,
+  useTransform,
+} from 'motion/react';
 import {
   Instagram,
   Facebook,
@@ -15,13 +21,112 @@ import {
   TrendingUp,
   Users,
   Star,
-  Briefcase,
   Award,
-  MessageSquareQuote,
   CheckCircle2,
   Youtube,
+  Building2,
+  Info,
+  ShieldCheck,
 } from 'lucide-react';
 import QRCode from 'qrcode';
+import bgArchitectureImg from './assets/images/luxury_dark_bg_1791390268087.jpg';
+import bgSilkImg from './assets/images/dark_silk_bg_1791390286526.jpg';
+import bgStudioImg from './assets/images/dark_studio_bg_1791390886071.jpg';
+
+interface BgPreset {
+  id: string;
+  name: string;
+  description: string;
+  url: string;
+  previewUrl: string;
+}
+
+const resolvePresetUrl = (keyOrUrl: string) => {
+  if (!keyOrUrl || keyOrUrl === 'none') return 'none';
+  if (keyOrUrl === 'architecture' || keyOrUrl === '/bg-architecture.jpg') return bgArchitectureImg;
+  if (keyOrUrl === 'silk' || keyOrUrl === '/bg-silk.jpg') return bgSilkImg;
+  if (keyOrUrl === 'studio' || keyOrUrl === '/bg-studio.jpg') return bgStudioImg;
+  return keyOrUrl;
+};
+
+const BG_PRESETS: BgPreset[] = [
+  {
+    id: 'architecture',
+    name: 'Arquitetura Dark Minimalista',
+    description: 'Estúdio contemporâneo com iluminação suave e sombras elegantes.',
+    url: bgArchitectureImg,
+    previewUrl: bgArchitectureImg,
+  },
+  {
+    id: 'silk',
+    name: 'Dark Silk & Linhas Tech',
+    description: 'Ondas de seda grafite sofisticadas com sutis feixes de luz.',
+    url: bgSilkImg,
+    previewUrl: bgSilkImg,
+  },
+  {
+    id: 'studio',
+    name: 'Estúdio Executivo Titanium',
+    description: 'Reflexos metálicos escuros com suave contraluz quente.',
+    url: bgStudioImg,
+    previewUrl: bgStudioImg,
+  },
+  {
+    id: 'none',
+    name: 'Gradiente Puro (Sem Imagem)',
+    description: 'Apenas degradê escuro obsidiana com nébula suave e partículas.',
+    url: 'none',
+    previewUrl: '',
+  },
+];
+
+interface AboutData {
+  shortBio: string;
+  fullName: string;
+  role: string;
+  companyName: string;
+  experienceYears: string;
+  fullBio: string;
+  mission: string;
+  focusAudience: string;
+  pillars: Array<{
+    title: string;
+    desc: string;
+  }>;
+}
+
+const DEFAULT_ABOUT_DATA: AboutData = {
+  shortBio:
+    'Especialista em posicionamento estratégico e crescimento de marcas no digital. Transformo perfis de pequenos negócios e profissionais em canais contínuos de autoridade e vendas reais pelo Direct e WhatsApp.',
+  fullName: 'José Pereira',
+  role: 'Marketing & Social Media',
+  companyName: 'Pereira Media & Growth Digital',
+  experienceYears: '+5 anos no mercado',
+  fullBio:
+    'Com mais de 5 anos de experiência prática no ecossistema digital, atuo diretamente no desenvolvimento e execução de estratégias de presença online, produção de conteúdo magnético e tráfego direcionado. Meu objetivo é eliminar a dependência exclusiva do boca a boca, estruturando um processo previsível de captação de clientes.',
+  mission:
+    'Capacitar pequenos negócios, clínicas e empresas locais a conquistarem relevância no digital e transformarem atenção em faturamento recorrente.',
+  focusAudience:
+    'Pequenos e médios negócios, clínicas e saúde, moda e varejo, consultorias e prestadores de serviços locais.',
+  pillars: [
+    {
+      title: 'Diagnóstico & Posicionamento',
+      desc: 'Análise de perfil, público-alvo e nicho para estruturar uma presença de alto valor e diferenciação imediata.',
+    },
+    {
+      title: 'Conteúdo Estratégico',
+      desc: 'Linha editorial pensada para quebrar objeções, gerar conexão genuína e despertar desejo de compra.',
+    },
+    {
+      title: 'Tráfego Pago & Alcance Local',
+      desc: 'Anúncios direcionados para colocar sua empresa na frente das pessoas certas que já compram na sua região.',
+    },
+    {
+      title: 'Conversão & Fechamento',
+      desc: 'Otimização de funil do Reels e Stories direto para o fechamento no Direct e WhatsApp.',
+    },
+  ],
+};
 
 interface SocialButton {
   id: string;
@@ -437,6 +542,78 @@ function useLiveRatingTicker() {
   return { rating, isLivePulse };
 }
 
+// Hook: 2.5D Cinematic Parallax tracking cursor on desktop and device orientation on mobile
+function useParallax() {
+  const rawX = useMotionValue(0);
+  const rawY = useMotionValue(0);
+
+  // Soft springs with cinematic inertia: responsive yet silky smooth with zero jitter
+  const springConfig = { stiffness: 55, damping: 20, mass: 0.6 };
+  const smoothX = useSpring(rawX, springConfig);
+  const smoothY = useSpring(rawY, springConfig);
+
+  useEffect(() => {
+    // Mouse movement handler
+    const handleMouseMove = (e: MouseEvent) => {
+      const { innerWidth, innerHeight } = window;
+      const normX = (e.clientX / innerWidth) * 2 - 1;
+      const normY = (e.clientY / innerHeight) * 2 - 1;
+      rawX.set(normX);
+      rawY.set(normY);
+    };
+
+    const handleMouseLeave = () => {
+      rawX.set(0);
+      rawY.set(0);
+    };
+
+    // Mobile device tilt / gyroscope handler
+    const handleOrientation = (e: DeviceOrientationEvent) => {
+      if (e.gamma !== null && e.beta !== null) {
+        // Gamma (tilt left/right): [-28 deg, +28 deg] mapped to [-1, 1]
+        const gammaClamped = Math.max(-28, Math.min(28, e.gamma || 0));
+        // Beta (tilt forward/backward): normal handheld angle is ~45 deg, allow [-25 deg, +25 deg] range
+        const betaDiff = (e.beta || 45) - 45;
+        const betaClamped = Math.max(-25, Math.min(25, betaDiff));
+
+        rawX.set(gammaClamped / 28);
+        rawY.set(betaClamped / 25);
+      }
+    };
+
+    // Mobile touch tracking fallback (so touching or dragging also gives holographic response on mobile)
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches && e.touches[0]) {
+        const { innerWidth, innerHeight } = window;
+        const touch = e.touches[0];
+        const normX = (touch.clientX / innerWidth) * 2 - 1;
+        const normY = (touch.clientY / innerHeight) * 2 - 1;
+        rawX.set(normX);
+        rawY.set(normY);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    document.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+
+    if (typeof window !== 'undefined' && 'DeviceOrientationEvent' in window) {
+      window.addEventListener('deviceorientation', handleOrientation, { passive: true });
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('touchmove', handleTouchMove);
+      if (typeof window !== 'undefined' && 'DeviceOrientationEvent' in window) {
+        window.removeEventListener('deviceorientation', handleOrientation);
+      }
+    };
+  }, [rawX, rawY]);
+
+  return { smoothX, smoothY };
+}
+
 export default function App() {
   const [profileImage, setProfileImage] = useState<string>(() => {
     if (typeof window !== 'undefined') {
@@ -447,6 +624,44 @@ export default function App() {
 
   const [buttons] = useState<SocialButton[]>(DEFAULT_BUTTONS);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  // 2.5D Cinematic Parallax Transforms
+  const { smoothX, smoothY } = useParallax();
+
+  // Background ambient orbs: slow opposite displacement for distant backplane
+  const bgX = useTransform(smoothX, [-1, 1], [-22, 22]);
+  const bgY = useTransform(smoothY, [-1, 1], [-18, 18]);
+
+  // Mid-background atmospheric dust motes: gentle intermediate shift
+  const dustX = useTransform(smoothX, [-1, 1], [-12, 12]);
+  const dustY = useTransform(smoothY, [-1, 1], [-10, 10]);
+
+  // Photo layer: primary foreground subject with realistic 2.5D lens tilt
+  const photoX = useTransform(smoothX, [-1, 1], [16, -16]);
+  const photoY = useTransform(smoothY, [-1, 1], [12, -12]);
+  const photoRotateY = useTransform(smoothX, [-1, 1], [-4.5, 4.5]);
+  const photoRotateX = useTransform(smoothY, [-1, 1], [4, -4]);
+
+  // Sobre panel: intermediate 2.5D depth plane beside photo
+  const aboutX = useTransform(smoothX, [-1, 1], [11, -11]);
+  const aboutY = useTransform(smoothY, [-1, 1], [8, -8]);
+  const aboutRotateY = useTransform(smoothX, [-1, 1], [-2.8, 2.8]);
+  const aboutRotateX = useTransform(smoothY, [-1, 1], [2.4, -2.4]);
+
+  // Center bio & texts stack: distinct mid-foreground depth layer
+  const contentX = useTransform(smoothX, [-1, 1], [7, -7]);
+  const contentY = useTransform(smoothY, [-1, 1], [5, -5]);
+  const contentRotateY = useTransform(smoothX, [-1, 1], [-1.8, 1.8]);
+  const contentRotateX = useTransform(smoothY, [-1, 1], [1.5, -1.5]);
+
+  // Right social buttons: independent 3D foreground floating plane
+  const socialX = useTransform(smoothX, [-1, 1], [13, -13]);
+  const socialY = useTransform(smoothY, [-1, 1], [11, -11]);
+  const socialRotateY = useTransform(smoothX, [-1, 1], [-3.2, 3.2]);
+
+  // Bottom right testimonial toast: floating HUD layer
+  const toastX = useTransform(smoothX, [-1, 1], [6, -6]);
+  const toastY = useTransform(smoothY, [-1, 1], [5, -5]);
 
   // Animated metrics hooks calibrated for a ~25-second progression:
   // - Empresas: starts at 5, increases by 2 every 1.92s (13 steps * 1.92s ≈ 25s) up to 30
@@ -471,11 +686,29 @@ export default function App() {
   // Option 3: Rotating testimonial toast state
   const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [showTestimonialToast, setShowTestimonialToast] = useState(false);
+  const [selectedTestimonialModal, setSelectedTestimonialModal] = useState<Testimonial | null>(null);
 
   // Digital business card & QR code modal state
   const [showQrModal, setShowQrModal] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Sobre Mim & Empresa State (with localStorage persistence)
+  const [aboutData, setAboutData] = useState<AboutData>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('void_about_data');
+      if (saved) {
+        try {
+          return { ...DEFAULT_ABOUT_DATA, ...JSON.parse(saved) };
+        } catch {
+          // fallback
+        }
+      }
+    }
+    return DEFAULT_ABOUT_DATA;
+  });
+
+  const [showAboutModal, setShowAboutModal] = useState(false);
 
   useEffect(() => {
     const roleTimer = setInterval(() => {
@@ -532,22 +765,36 @@ export default function App() {
     }
   }, [showQrModal]);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          const dataUrl = event.target.result as string;
-          setProfileImage(dataUrl);
-          localStorage.setItem('void_profile_image', dataUrl);
-        }
-      };
-      reader.readAsDataURL(file);
+  // Option 4: Background Image with Gradient Overlay & Transparency
+  const [bgImage] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('void_bg_image');
+      if (saved) return saved;
     }
-  };
+    return bgArchitectureImg;
+  });
+
+  const [bgOpacity] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('void_bg_opacity');
+      if (saved) {
+        const val = parseFloat(saved);
+        if (val <= 0.22) return 0.45;
+        return val;
+      }
+    }
+    return 0.45; // 45% perfeitamente visível, elegante e balanceado
+  });
+
+  const [bgBlur] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('void_bg_blur');
+      if (saved) return parseInt(saved, 10);
+    }
+    return 2; // 2px desfoque cinematográfico sutil
+  });
+
+  const resolvedBgImage = resolvePresetUrl(bgImage);
 
   const handleCopyLink = () => {
     if (typeof window !== 'undefined') {
@@ -594,29 +841,73 @@ export default function App() {
       className="relative w-screen h-screen overflow-hidden select-none cursor-default bg-gradient-to-br from-[#2a2d33] via-[#151619] to-[#040405]"
       style={{ perspective: '1200px' }}
     >
-      {/* Hidden file input */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleImageUpload}
-        accept="image/*"
-        className="hidden"
-      />
+      {/* Cinematic ambient background glow and floating dust motes with 2.5D optical parallax */}
+      <motion.div
+        style={{
+          x: bgX,
+          y: bgY,
+          scale: 1.06,
+        }}
+        className="absolute inset-0 pointer-events-none overflow-hidden"
+      >
+        {/* Background Image Layer (Opção 4): Perfeitamente visível e nítida com controle de transparência e desfoque */}
+        {resolvedBgImage && resolvedBgImage !== 'none' && (
+          <div
+            className="absolute inset-0 transition-opacity duration-300 pointer-events-none select-none"
+            style={{ opacity: bgOpacity }}
+          >
+            <img
+              src={resolvedBgImage}
+              alt="Ambiente de Fundo"
+              className="w-full h-full object-cover select-none pointer-events-none"
+              style={{
+                filter: `blur(${bgBlur}px) contrast(1.08) brightness(0.96)`,
+                transform: 'scale(1.06)',
+              }}
+            />
+          </div>
+        )}
 
-      {/* Cinematic ambient background glow and floating dust motes */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <DustParticles />
-
-        <div className="absolute top-1/4 left-1/4 w-[650px] h-[650px] bg-white/[0.025] rounded-full blur-[150px]" />
-        <div className="absolute -bottom-32 right-1/4 w-[750px] h-[750px] bg-white/[0.018] rounded-full blur-[170px]" />
+        {/* Efeito Degradê Gradiente: Radial Vignette elegante que mantém o centro nítido e escurece suavemente as bordas */}
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(ellipse 90% 85% at 50% 45%, rgba(14, 16, 20, 0.12) 0%, rgba(10, 11, 15, 0.42) 55%, rgba(4, 4, 6, 0.88) 100%)',
+          }}
+        />
+
+        {/* Efeito Degradê Gradiente: Linear vertical suave (topo e rodapé escuros elegantes, centro livre para a imagem) */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(6, 7, 9, 0.52) 0%, rgba(6, 7, 9, 0.05) 30%, rgba(6, 7, 9, 0.15) 70%, rgba(4, 4, 6, 0.82) 100%)',
+          }}
+        />
+
+        {/* Mid-background atmospheric dust motes with 2.5D optical parallax */}
+        <motion.div
+          style={{
+            x: dustX,
+            y: dustY,
+          }}
+          className="absolute inset-0 pointer-events-none"
+        >
+          <DustParticles />
+        </motion.div>
+
+        {/* Subtle luminous ambient orbs */}
+        <div className="absolute top-1/4 left-1/4 w-[650px] h-[650px] bg-emerald-500/[0.025] rounded-full blur-[160px] pointer-events-none" />
+        <div className="absolute -bottom-32 right-1/4 w-[750px] h-[750px] bg-white/[0.018] rounded-full blur-[170px] pointer-events-none" />
+        <div
+          className="absolute inset-0 opacity-[0.025] pointer-events-none"
           style={{
             backgroundImage: `radial-gradient(circle at 1px 1px, #ffffff 1px, transparent 0)`,
             backgroundSize: '28px 28px',
           }}
         />
-      </div>
+      </motion.div>
 
       {/* MAIN CONTENT LAYER: Profile Photo + Bio beside it (Left & Center) and Floating Buttons (Right) */}
       <motion.div
@@ -626,57 +917,187 @@ export default function App() {
           duration: 1.2,
           ease: [0.16, 1, 0.3, 1],
         }}
-        className="fixed inset-0 flex flex-col lg:flex-row items-center justify-between px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 z-20 pointer-events-none overflow-y-auto lg:overflow-visible py-8 lg:py-0"
+        className="fixed inset-0 flex flex-col xl:flex-row items-center justify-between px-3 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-14 z-20 pointer-events-none overflow-y-auto xl:overflow-visible py-8 xl:py-0"
       >
-        {/* Left & Center: Floating Cutout Photo and Bio side by side */}
-        <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8 lg:gap-10 xl:gap-14 pointer-events-auto my-auto max-w-full lg:max-w-[72vw]">
-          {/* Floating Photo (Uncropped, zero background, zero frame) */}
+        {/* Left & Center: Floating Cutout Photo + Full Sobre Panel beside Photo + Remaining Elements beside Sobre */}
+        <div className="flex flex-col xl:flex-row items-center xl:items-center gap-5 sm:gap-6 lg:gap-7 xl:gap-8 pointer-events-auto my-auto max-w-full xl:max-w-[92vw] 2xl:max-w-[88vw]">
+          {/* COLUNA 1: Floating Photo (Uncropped, zero background, zero frame) with 2.5D lens parallax */}
           <motion.div
-            animate={{
-              y: [-6, 6, -6],
-            }}
-            transition={{
-              duration: 6,
-              repeat: Infinity,
-              repeatType: 'mirror',
-              ease: 'easeInOut',
+            style={{
+              x: photoX,
+              y: photoY,
+              rotateX: photoRotateX,
+              rotateY: photoRotateY,
+              transformStyle: 'preserve-3d',
             }}
             className="relative flex flex-col items-center shrink-0"
           >
             <motion.div
-              whileHover={{
-                scale: 1.025,
-                z: 35,
-                transition: {
-                  duration: 0.4,
-                  ease: [0.16, 1, 0.3, 1],
-                },
+              animate={{
+                y: [-6, 6, -6],
               }}
-              onClick={() => fileInputRef.current?.click()}
-              className="group relative select-none cursor-pointer"
-              title="Foto de perfil"
-              style={{ transformStyle: 'preserve-3d' }}
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                repeatType: 'mirror',
+                ease: 'easeInOut',
+              }}
+              className="relative flex flex-col items-center shrink-0"
             >
-              <div className="relative bg-transparent">
-                <img
-                  src={profileImage}
-                  alt="José Pereira"
-                  className="max-h-[48vh] sm:max-h-[60vh] lg:max-h-[76vh] xl:max-h-[80vh] max-w-[75vw] sm:max-w-[45vw] lg:max-w-[32vw] w-auto h-auto object-contain select-none block transition-all duration-500"
-                  style={{
-                    filter: 'drop-shadow(0 25px 45px rgba(0, 0, 0, 0.85))',
-                  }}
-                />
-              </div>
+              <motion.div
+                whileHover={{
+                  scale: 1.025,
+                  z: 35,
+                  transition: {
+                    duration: 0.4,
+                    ease: [0.16, 1, 0.3, 1],
+                  },
+                }}
+                className="group relative select-none cursor-default"
+                style={{ transformStyle: 'preserve-3d' }}
+              >
+                <div className="relative bg-transparent">
+                  <img
+                    src={profileImage}
+                    alt="José Pereira"
+                    className="max-h-[38vh] sm:max-h-[46vh] lg:max-h-[58vh] xl:max-h-[68vh] 2xl:max-h-[74vh] max-w-[65vw] sm:max-w-[38vw] lg:max-w-[22vw] xl:max-w-[18vw] 2xl:max-w-[20vw] w-auto h-auto object-contain select-none block transition-all duration-500"
+                    style={{
+                      filter: 'drop-shadow(0 25px 45px rgba(0, 0, 0, 0.85))',
+                    }}
+                  />
+                </div>
+              </motion.div>
             </motion.div>
           </motion.div>
 
-          {/* Bio & Details placed beside the photo */}
+          {/* COLUNA 2: SOBRE TRAJETÓRIA & EMPRESA (Ao lado da foto) */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            style={{
+              x: aboutX,
+              y: aboutY,
+              rotateX: aboutRotateX,
+              rotateY: aboutRotateY,
+              transformStyle: 'preserve-3d',
+            }}
+            initial={{ opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col text-left select-none max-w-md lg:max-w-lg w-full"
+            transition={{ duration: 0.85, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full sm:max-w-md lg:max-w-[360px] xl:max-w-[390px] 2xl:max-w-[420px] shrink-0 flex flex-col text-left pointer-events-auto"
           >
+            {/* Bloco de Identificação: Posicionado ACIMA do modal/card Sobre (não dentro do modal) */}
+            <div className="mb-2 sm:mb-2.5 px-1">
+              <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight">
+                {aboutData.fullName}
+              </h2>
+              <p className="text-xs sm:text-sm font-semibold text-emerald-400 mt-0.5">
+                {aboutData.role}
+              </p>
+              <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-zinc-400 mt-1">
+                <span className="text-zinc-200 font-medium">{aboutData.companyName}</span>
+                <span className="text-zinc-500">•</span>
+                <span className="text-emerald-300 font-medium">
+                  {aboutData.experienceYears.includes('mercado')
+                    ? aboutData.experienceYears
+                    : `${aboutData.experienceYears} no mercado`}
+                </span>
+              </div>
+            </div>
+
+            {/* Modal / Card Sobre Trajetória & Empresa (mais largo e com a mesma largura do Perfil Profissional) */}
+            <div className="w-full p-4 sm:p-4.5 rounded-3xl bg-[#131417]/85 border border-white/12 hover:border-emerald-500/30 backdrop-blur-2xl shadow-2xl text-left transition-colors flex flex-col gap-2.5">
+              {/* Header do Sobre */}
+              <div className="flex items-center justify-between gap-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-[10px] sm:text-[11px] font-semibold text-emerald-300">
+                  <Building2 className="w-3.5 h-3.5" />
+                  <span>Sobre • Trajetória & Empresa</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAboutModal(true)}
+                  className="text-[10px] text-zinc-400 hover:text-emerald-300 transition-colors flex items-center gap-1 cursor-pointer"
+                  title="Conhecer detalhes da trajetória e empresa"
+                >
+                  <Info className="w-3 h-3" />
+                  <span>Ver mais</span>
+                </button>
+              </div>
+
+              {/* Trajetória & Apresentação Profissional (sem poluição) */}
+              <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 text-left">
+                <h3 className="text-[10px] font-bold text-zinc-300 mb-1 flex items-center gap-1.5 uppercase tracking-wider">
+                  <Sparkles className="w-3 h-3 text-emerald-400" />
+                  <span>Apresentação & Trajetória</span>
+                </h3>
+                <p className="text-xs text-zinc-300 leading-relaxed font-normal">
+                  {aboutData.fullBio}
+                </p>
+              </div>
+
+              {/* Missão da Empresa */}
+              <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 text-left">
+                <h3 className="text-[10px] font-bold text-zinc-300 mb-1 flex items-center gap-1.5 uppercase tracking-wider">
+                  <Building2 className="w-3.5 h-3.5 text-teal-400" />
+                  <span>Missão da Empresa</span>
+                </h3>
+                <p className="text-xs text-zinc-400 leading-relaxed font-normal">
+                  {aboutData.mission}
+                </p>
+              </div>
+
+              {/* Metodologia de Atuação • 4 Pilares */}
+              <div className="text-left">
+                <h3 className="text-[10px] font-bold text-zinc-400 mb-1.5 uppercase tracking-wider">
+                  Metodologia em 4 Pilares
+                </h3>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {aboutData.pillars.map((pillar, idx) => (
+                    <div
+                      key={idx}
+                      className="p-2 rounded-xl bg-[#16171a]/90 border border-white/10 hover:border-emerald-500/30 transition-colors"
+                    >
+                      <div className="flex items-center gap-1 mb-0.5">
+                        <span className="w-3.5 h-3.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[9px] font-bold flex items-center justify-center shrink-0">
+                          {idx + 1}
+                        </span>
+                        <span className="text-[10px] font-bold text-zinc-200 truncate">
+                          {pillar.title}
+                        </span>
+                      </div>
+                      <p className="text-[9px] text-zinc-400 leading-tight line-clamp-2">
+                        {pillar.desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Público & Nichos Atendidos */}
+              <div className="flex items-center gap-2 p-2 rounded-xl bg-white/[0.02] border border-white/10 text-[10px] text-zinc-300">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span className="leading-tight">
+                  <strong className="text-zinc-200">Foco:</strong> {aboutData.focusAudience}
+                </span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* COLUNA 3: DEMAIS ELEMENTOS / PERFIL PROFISSIONAL (Ao lado do Sobre) */}
+          <motion.div
+            style={{
+              x: contentX,
+              y: contentY,
+              rotateX: contentRotateX,
+              rotateY: contentRotateY,
+              transformStyle: 'preserve-3d',
+            }}
+            className="w-full sm:max-w-md lg:max-w-[360px] xl:max-w-[390px] 2xl:max-w-[420px] shrink-0 flex flex-col text-left select-none"
+          >
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="flex flex-col text-left select-none w-full"
+            >
             {/* Top Status & Badge Line */}
             <div className="flex flex-wrap items-center gap-2.5 mb-2.5 self-start">
               {/* Header Badge: Living letters moving/waving smoothly */}
@@ -929,13 +1350,19 @@ export default function App() {
                 <QrCode className="w-4 h-4 sm:w-5 sm:h-5" />
               </motion.button>
             </div>
+            </motion.div>
           </motion.div>
         </div>
 
-        {/* RIGHT SIDE: Floating Social Buttons */}
-        <div
-          className="flex flex-row lg:flex-col gap-4 sm:gap-5 lg:gap-6 xl:gap-7 pointer-events-auto shrink-0 my-auto py-4 lg:py-0 justify-center w-full lg:w-auto"
-          style={{ transformStyle: 'preserve-3d' }}
+        {/* RIGHT SIDE: Floating Social Buttons with 2.5D parallax plane */}
+        <motion.div
+          style={{
+            x: socialX,
+            y: socialY,
+            rotateY: socialRotateY,
+            transformStyle: 'preserve-3d',
+          }}
+          className="flex flex-row xl:flex-col gap-3.5 sm:gap-4 xl:gap-5 2xl:gap-6 pointer-events-auto shrink-0 my-auto py-4 xl:py-0 justify-center w-full xl:w-auto relative z-30"
         >
           {buttons.map((btn) => {
             const Icon = btn.icon;
@@ -950,9 +1377,9 @@ export default function App() {
                       animate={{ opacity: 1, x: -26, scale: 1 }}
                       exit={{ opacity: 0, x: -10, scale: 0.9 }}
                       transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                      className="absolute right-full mr-2 pointer-events-none hidden lg:flex items-center z-40"
+                      className="absolute right-full mr-2 pointer-events-none hidden lg:flex items-center z-50"
                     >
-                      <div className="px-3.5 py-1.5 rounded-xl bg-black/75 backdrop-blur-md border border-white/15 text-zinc-100 text-xs font-medium tracking-wide shadow-2xl flex items-center gap-1.5 whitespace-nowrap">
+                      <div className="px-3.5 py-1.5 rounded-xl bg-black/85 backdrop-blur-md border border-white/15 text-zinc-100 text-xs font-medium tracking-wide shadow-2xl flex items-center gap-1.5 whitespace-nowrap pointer-events-none">
                         <span className="text-[10px] text-zinc-400 font-mono">↖</span>
                         <span>{btn.name}</span>
                       </div>
@@ -972,6 +1399,7 @@ export default function App() {
                     ease: 'easeInOut',
                     delay: btn.floatDelay,
                   }}
+                  className="relative pointer-events-auto"
                 >
                   <motion.a
                     href={btn.url}
@@ -992,21 +1420,24 @@ export default function App() {
                       scale: 1.15,
                       transition: { duration: 0.15 },
                     }}
-                    className="group relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-2xl cursor-pointer focus:outline-none"
+                    className="group relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-2xl cursor-pointer focus:outline-none select-none pointer-events-auto"
                     style={{
                       transformStyle: 'preserve-3d',
                     }}
                     title={btn.name}
+                    aria-label={btn.name}
                   >
+                    {/* Glow ring layer: pointer-events-none so click passes through to <a> */}
                     <motion.div
-                      className={`absolute -inset-1.5 rounded-2xl bg-gradient-to-r ${btn.gradientRing} opacity-0 blur-md transition-opacity duration-500`}
+                      className={`absolute -inset-2 rounded-2xl bg-gradient-to-r ${btn.gradientRing} opacity-0 blur-md transition-opacity duration-500 pointer-events-none`}
                       animate={{
-                        opacity: isHovered ? 0.7 : 0,
+                        opacity: isHovered ? 0.75 : 0,
                       }}
                     />
 
+                    {/* Shadow layer: pointer-events-none */}
                     <div
-                      className="absolute inset-0 rounded-2xl transition-all duration-500"
+                      className="absolute inset-0 rounded-2xl transition-all duration-500 pointer-events-none"
                       style={{
                         boxShadow: isHovered
                           ? `0 25px 45px -8px rgba(0, 0, 0, 0.9), 0 0 35px ${btn.accentGlow}`
@@ -1014,60 +1445,155 @@ export default function App() {
                       }}
                     />
 
-                    <div className="relative z-10 flex items-center justify-center w-full h-full rounded-2xl bg-zinc-900/75 backdrop-blur-xl border border-white/10 group-hover:border-white/35 group-hover:bg-zinc-800/80 transition-colors duration-400 overflow-hidden shadow-inner">
+                    {/* Button Surface & Border: pointer-events-none so entire bounding box & borders trigger the <a> */}
+                    <div className="relative z-10 flex items-center justify-center w-full h-full rounded-2xl bg-zinc-900/80 backdrop-blur-xl border border-white/15 group-hover:border-white/40 group-hover:bg-zinc-800/85 transition-colors duration-400 overflow-hidden shadow-inner pointer-events-none">
                       <div className="absolute top-0 inset-x-0 h-[45%] bg-gradient-to-b from-white/15 to-transparent rounded-t-2xl pointer-events-none" />
-                      <Icon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-zinc-300 group-hover:text-white transition-all duration-400 group-hover:scale-110 drop-shadow-md" />
+                      <Icon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-zinc-300 group-hover:text-white transition-all duration-400 group-hover:scale-110 drop-shadow-md pointer-events-none" />
                     </div>
                   </motion.a>
                 </motion.div>
               </div>
             );
           })}
-        </div>
+        </motion.div>
       </motion.div>
 
-      {/* OPTION 3: ROTATING SOCIAL PROOF TESTIMONIAL TOAST (Bottom Left) */}
+      {/* OPTION 3: ROTATING COMPACT SOCIAL PROOF PILL (Clean & Unobtrusive with 2.5D floating HUD depth) */}
       <AnimatePresence>
         {showTestimonialToast && currentTestimonial && (
           <motion.div
-            initial={{ opacity: 0, y: 25, scale: 0.92 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 25, scale: 0.92 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-4 right-4 sm:right-6 lg:right-8 z-40 max-w-[320px] sm:max-w-sm rounded-2xl bg-[#141519]/90 border border-white/15 backdrop-blur-2xl p-3.5 shadow-2xl pointer-events-auto"
+            style={{
+              x: toastX,
+              y: toastY,
+            }}
+            className="fixed bottom-3 right-3 sm:bottom-4 sm:right-6 lg:right-8 z-40 pointer-events-auto"
           >
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-xs font-bold text-emerald-300">
-                  {currentTestimonial.name.charAt(0)}
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-bold text-white leading-none">
-                      {currentTestimonial.name}
-                    </span>
-                    <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+            <motion.div
+              initial={{ opacity: 0, y: 16, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.94 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              onClick={() => setSelectedTestimonialModal(currentTestimonial)}
+              className="max-w-[270px] sm:max-w-xs rounded-2xl bg-[#141519]/90 hover:bg-[#181a20]/95 border border-white/15 hover:border-emerald-400/40 backdrop-blur-2xl p-2 sm:p-2.5 shadow-2xl cursor-pointer group transition-all"
+              title="Toque para ver o depoimento completo"
+            >
+              <div className="flex items-center justify-between gap-2.5">
+                <div className="flex items-center gap-2 min-w-0">
+                  {/* Avatar Initial with subtle glow */}
+                  <div className="w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-[11px] font-bold text-emerald-300 shrink-0 group-hover:scale-105 transition-transform">
+                    {currentTestimonial.name.charAt(0)}
                   </div>
-                  <span className="text-[10px] text-zinc-400 leading-none">
-                    {currentTestimonial.company}
+
+                  {/* Name + Verified + Company (clean & compact) */}
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs font-bold text-white truncate leading-tight">
+                        {currentTestimonial.name}
+                      </span>
+                      <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                    </div>
+                    <span className="text-[10px] text-zinc-400 truncate block leading-tight">
+                      {currentTestimonial.company}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Stars + Tap indicator */}
+                <div className="flex flex-col items-end shrink-0 pl-1">
+                  <span className="text-[10px] text-amber-300 tracking-wider">
+                    ★★★★★
+                  </span>
+                  <span className="text-[8px] text-zinc-500 group-hover:text-emerald-300 flex items-center gap-0.5 transition-colors font-medium">
+                    <span>abrir</span>
+                    <span className="font-mono text-[8px]">↗</span>
                   </span>
                 </div>
               </div>
-
-              <div className="flex items-center gap-1 text-[10px] text-amber-300">
-                <span>★★★★★</span>
-              </div>
-            </div>
-
-            <p className="text-[11px] text-zinc-300 leading-relaxed italic pl-1 mb-1">
-              "{currentTestimonial.text}"
-            </p>
-
-            <div className="flex items-center justify-between text-[9px] text-zinc-500 pt-1 border-t border-white/5">
-              <span>Depoimento verificado</span>
-              <span>{currentTestimonial.timeAgo}</span>
-            </div>
+            </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* TESTIMONIAL DETAIL MODAL (Opens on click of the clean pill) */}
+      <AnimatePresence>
+        {selectedTestimonialModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 15 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="relative w-full max-w-sm bg-[#131417]/95 border border-white/20 rounded-3xl p-6 shadow-2xl text-white backdrop-blur-2xl text-left"
+            >
+              <button
+                onClick={() => setSelectedTestimonialModal(null)}
+                className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-[11px] font-semibold text-emerald-300 mb-3.5">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Depoimento Verificado</span>
+              </div>
+
+              <div className="flex items-center gap-3 mb-3.5">
+                <div className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-sm font-bold text-emerald-300 shrink-0">
+                  {selectedTestimonialModal.name.charAt(0)}
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <h4 className="text-sm font-bold text-white">
+                      {selectedTestimonialModal.name}
+                    </h4>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  </div>
+                  <p className="text-xs text-zinc-400">
+                    {selectedTestimonialModal.company}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1 text-xs text-amber-300 mb-3">
+                <span>★★★★★</span>
+                <span className="text-[10px] text-zinc-400 ml-1">
+                  (5.0 • Excelente)
+                </span>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/10 mb-4">
+                <p className="text-xs text-zinc-200 leading-relaxed italic">
+                  "{selectedTestimonialModal.text}"
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between text-[10px] text-zinc-500 mb-5">
+                <span>Depoimento real de cliente</span>
+                <span>{selectedTestimonialModal.timeAgo}</span>
+              </div>
+
+              <div className="space-y-2">
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(
+                    `Olá José! Vi o depoimento de ${selectedTestimonialModal.name} (${selectedTestimonialModal.company}) e gostaria de conversar sobre meu negócio também.`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 text-white font-semibold text-xs hover:opacity-95 transition-opacity shadow-lg cursor-pointer"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Conversar no WhatsApp com o José</span>
+                </a>
+
+                <button
+                  onClick={() => setSelectedTestimonialModal(null)}
+                  className="w-full py-2 text-xs text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  Fechar
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
@@ -1213,6 +1739,137 @@ export default function App() {
                   {copiedLink ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                   <span>{copiedLink ? 'Link Copiado com Sucesso!' : 'Copiar Link da Página'}</span>
                 </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ABOUT ME & COMPANY MODAL (View-Only Institutional Presentation) */}
+      <AnimatePresence>
+        {showAboutModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 15 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="relative w-full max-w-xl bg-[#131417]/95 border border-white/20 rounded-3xl p-5 sm:p-7 shadow-2xl text-white backdrop-blur-2xl max-h-[92vh] overflow-y-auto text-left"
+            >
+              <div className="absolute top-4 right-4 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAboutModal(false)}
+                  className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                  title="Fechar"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-[11px] font-semibold text-emerald-300 mb-3">
+                  <Building2 className="w-3.5 h-3.5" />
+                  <span>Perfil & Empresa</span>
+                </div>
+
+                <div className="flex items-start justify-between gap-4 mb-5">
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-bold text-white">
+                      {aboutData.fullName}
+                    </h3>
+                    <p className="text-xs sm:text-sm font-semibold text-emerald-400">
+                      {aboutData.role}
+                    </p>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">
+                      {aboutData.companyName} • <span className="text-zinc-300 font-medium">{aboutData.experienceYears.includes('mercado') ? aboutData.experienceYears : `${aboutData.experienceYears} no mercado`}</span>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Trajetória & Apresentação */}
+                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 mb-4 text-left">
+                  <h4 className="text-xs font-bold text-zinc-200 mb-1.5 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Trajetória & Posicionamento</span>
+                  </h4>
+                  <p className="text-xs text-zinc-300 leading-relaxed">
+                    {aboutData.fullBio}
+                  </p>
+                </div>
+
+                {/* Missão e Público */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 text-left">
+                  <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10">
+                    <h4 className="text-xs font-bold text-zinc-200 mb-1 flex items-center gap-1.5">
+                      <Building2 className="w-3.5 h-3.5 text-teal-400" />
+                      <span>Missão da Empresa</span>
+                    </h4>
+                    <p className="text-[11px] text-zinc-400 leading-relaxed">
+                      {aboutData.mission}
+                    </p>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10">
+                    <h4 className="text-xs font-bold text-zinc-200 mb-1 flex items-center gap-1.5">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Público & Nichos</span>
+                    </h4>
+                    <p className="text-[11px] text-zinc-400 leading-relaxed">
+                      {aboutData.focusAudience}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Metodologia de Trabalho */}
+                <div className="mb-5 text-left">
+                  <h4 className="text-xs font-bold text-zinc-300 mb-2 uppercase tracking-wider">
+                    Como Trabalhamos • 4 Pilares de Sucesso
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {aboutData.pillars.map((pillar, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 rounded-xl bg-[#16171b]/80 border border-white/10 hover:border-emerald-500/30 transition-colors"
+                      >
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold flex items-center justify-center shrink-0">
+                            {idx + 1}
+                          </span>
+                          <span className="text-xs font-bold text-zinc-200">
+                            {pillar.title}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-zinc-400 leading-relaxed">
+                          {pillar.desc}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Ações do Rodapé */}
+                <div className="space-y-2 pt-1">
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(
+                      `Olá José! Li sobre sua trajetória e sobre a ${aboutData.companyName} e gostaria de agendar uma conversa sobre meu negócio.`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 text-white font-semibold text-xs sm:text-sm hover:opacity-95 transition-opacity shadow-lg cursor-pointer"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Falar Diretamente com o José no WhatsApp</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowAboutModal(false)}
+                    className="w-full py-2.5 px-5 text-xs text-zinc-400 hover:text-white transition-colors cursor-pointer border border-white/10 rounded-xl"
+                  >
+                    Fechar
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
