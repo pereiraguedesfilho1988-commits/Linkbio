@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   User,
+  Users,
   Share2,
   MessageCircle,
   BookOpen,
@@ -22,12 +23,15 @@ import {
   Copy,
   Check,
   Shield,
+  BarChart2,
+  Layout,
   Layers,
   Sparkles,
 } from 'lucide-react';
 import { useSiteConfig } from '../context/SiteConfigContext';
 import { useAuth } from '../context/AuthContext';
 import { SiteConfig, SocialButtonConfig, ServiceOptionConfig, CaseStudyConfig, TestimonialConfig } from '../types/siteConfig';
+import { DEFAULT_SITE_CONFIG } from '../data/defaultConfig';
 import { AVAILABLE_ICONS, IconName, renderIcon } from '../lib/icons';
 import {
   saveSupabaseCredentials,
@@ -52,7 +56,17 @@ type TabKey =
   | 'database';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onViewPublic }) => {
-  const { config, updateConfig, saveConfig, resetToDefaults, isSaving, lastSaved, supabaseStatus, refreshFromSupabase, checkSupabaseHealth } = useSiteConfig();
+  const {
+    config,
+    updateConfig,
+    saveConfig,
+    resetToDefaults,
+    isSaving,
+    lastSaved,
+    supabaseStatus,
+    refreshFromSupabase,
+    checkSupabaseHealth,
+  } = useSiteConfig();
   const { logout, userEmail, updateMasterPassword } = useAuth();
 
   const [activeTab, setActiveTab] = useState<TabKey>('identity');
@@ -322,16 +336,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onViewPublic }) 
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 flex-1 flex flex-col md:flex-row gap-6">
         {/* Navigation Sidebar */}
         <aside className="w-full md:w-64 shrink-0">
-          <nav className="bg-zinc-950/60 border border-zinc-800/80 rounded-2xl p-2 sticky top-24 space-y-1">
+          <nav className="bg-zinc-950/60 border border-zinc-800/80 rounded-2xl p-2.5 sticky top-24 space-y-1">
             {[
               { id: 'identity', label: 'Identidade & Bio', icon: User },
               { id: 'socials', label: 'Links & Redes', icon: Share2 },
-              { id: 'services', label: 'WhatsApp & Serviços', icon: MessageCircle },
-              { id: 'about', label: 'Sobre & Trajetória', icon: BookOpen },
-              { id: 'metrics', label: 'Métricas Animadas', icon: TrendingUp },
-              { id: 'cases', label: 'Cases & Prova Social', icon: Award },
-              { id: 'background', label: 'Fundo & Design', icon: Palette },
-              { id: 'database', label: 'Supabase & Netlify', icon: Database },
+              { id: 'services', label: 'Serviços & Atendimento', icon: BookOpen },
+              { id: 'about', label: 'Sobre Mim & Trajetória', icon: Award },
+              { id: 'metrics', label: 'Métricas & Contadores', icon: TrendingUp },
+              { id: 'cases', label: 'Cases & Depoimentos', icon: Layers },
+              { id: 'background', label: 'Aparência & Background 2.5D', icon: Palette },
+              { id: 'database', label: 'Supabase & Conexão', icon: Database },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -341,11 +355,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onViewPublic }) 
                   onClick={() => setActiveTab(tab.id as TabKey)}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all text-left cursor-pointer ${
                     isActive
-                      ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30 shadow-sm'
-                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60'
+                      ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30 shadow-sm font-semibold'
+                      : 'text-zinc-300 hover:text-white hover:bg-zinc-900/60'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-purple-400' : 'text-zinc-500'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-purple-400' : 'text-zinc-400'}`} />
                   <span>{tab.label}</span>
                 </button>
               );
@@ -355,6 +369,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onViewPublic }) 
 
         {/* Content Area */}
         <main className="flex-1 bg-zinc-950/60 border border-zinc-800/80 rounded-3xl p-5 sm:p-7 backdrop-blur-sm">
+
           {/* TAB 1: IDENTIDADE & BIO */}
           {activeTab === 'identity' && (
             <div className="space-y-6">
@@ -655,149 +670,278 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onViewPublic }) 
           {/* TAB 2: LINKS & REDES SOCIAIS */}
           {activeTab === 'socials' && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-bold text-white flex items-center gap-2">
                     <Share2 className="w-5 h-5 text-purple-400" />
-                    Botões de Redes Sociais & Links
+                    Botões das Principais Redes Sociais
                   </h2>
                   <p className="text-xs text-zinc-400 mt-1">
-                    Edite os links, nomes, ícones e cores de brilho dos botões flutuantes 3D.
+                    Redes oficiais com ícones vetoriais originais e cores autênticas de marca: Facebook, Instagram, WhatsApp, YouTube, TikTok, X e Site.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const newBtn: SocialButtonConfig = {
-                      id: `btn-${Date.now()}`,
-                      name: 'Novo Link',
-                      url: 'https://',
-                      iconName: 'Globe',
-                      accentGlow: 'rgba(168, 85, 247, 0.4)',
-                      gradientRing: 'from-purple-500 via-indigo-500 to-pink-500',
-                      floatDelay: 0,
-                      floatDuration: 4.5,
-                      active: true,
-                    };
-                    updateConfig((prev) => ({
-                      ...prev,
-                      socialButtons: [...prev.socialButtons, newBtn],
-                    }));
-                  }}
-                  className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white flex items-center gap-1.5 cursor-pointer shadow-lg shadow-purple-600/25"
-                >
-                  <Plus className="w-4 h-4" /> Adicionar Botão
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateConfig((prev) => ({
+                        ...prev,
+                        socialButtons: DEFAULT_SITE_CONFIG.socialButtons,
+                      }));
+                      showNotification('As 7 redes sociais oficiais foram restauradas com sucesso!');
+                    }}
+                    className="px-3 py-1.5 rounded-xl text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 flex items-center gap-1.5 cursor-pointer transition-colors"
+                    title="Restaura os botões oficiais na ordem: Facebook, Instagram, WhatsApp, YouTube, TikTok, X e Site"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Restaurar 7 Redes Oficiais</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newBtn: SocialButtonConfig = {
+                        id: `btn-${Date.now()}`,
+                        name: 'Novo Link',
+                        url: 'https://',
+                        iconName: 'Site',
+                        accentGlow: 'rgba(168, 85, 247, 0.4)',
+                        gradientRing: 'from-purple-500 via-indigo-500 to-pink-500',
+                        floatDelay: 0,
+                        floatDuration: 4.5,
+                        active: true,
+                      };
+                      updateConfig((prev) => ({
+                        ...prev,
+                        socialButtons: [...prev.socialButtons, newBtn],
+                      }));
+                    }}
+                    className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white flex items-center gap-1.5 cursor-pointer shadow-lg shadow-purple-600/25"
+                  >
+                    <Plus className="w-4 h-4" /> Adicionar Botão
+                  </button>
+                </div>
               </div>
 
-              <div className="space-y-3.5">
-                {config.socialButtons.map((btn, idx) => (
-                  <div
-                    key={btn.id}
-                    className={`p-4 rounded-2xl border transition-all ${
-                      btn.active
-                        ? 'bg-zinc-900/60 border-zinc-800'
-                        : 'bg-zinc-950/40 border-zinc-900 opacity-60'
-                    }`}
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-                      <div className="flex items-center gap-3">
+              {/* Quick platforms preview & toggles bar */}
+              <div className="p-4 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-2.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 block">
+                  As 7 Redes Principais com Ícones Originais:
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+                  {[
+                    { id: 'facebook', name: 'Facebook', icon: 'Facebook', color: '#1877F2' },
+                    { id: 'instagram', name: 'Instagram', icon: 'Instagram', color: '#E1306C' },
+                    { id: 'whatsapp', name: 'WhatsApp', icon: 'WhatsApp', color: '#25D366' },
+                    { id: 'youtube', name: 'YouTube', icon: 'YouTube', color: '#FF0000' },
+                    { id: 'tiktok', name: 'TikTok', icon: 'TikTok', color: '#25F4EE' },
+                    { id: 'x', name: 'X', icon: 'X', color: '#FFFFFF' },
+                    { id: 'site', name: 'Site', icon: 'Site', color: '#A855F7' },
+                  ].map((plat) => {
+                    const existing = config.socialButtons.find(
+                      (b) => b.id === plat.id || b.iconName.toLowerCase() === plat.id.toLowerCase()
+                    );
+                    const isActive = existing ? existing.active : false;
+
+                    return (
+                      <div
+                        key={plat.id}
+                        className={`p-2.5 rounded-xl border flex flex-col items-center text-center gap-1.5 transition-all ${
+                          isActive
+                            ? 'bg-zinc-950/80 border-zinc-700 shadow-sm'
+                            : 'bg-zinc-950/30 border-zinc-900 opacity-50'
+                        }`}
+                      >
                         <div
-                          className="w-10 h-10 rounded-xl flex items-center justify-center text-white border border-white/10"
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0"
                           style={{
-                            backgroundColor: '#18191e',
-                            boxShadow: `0 0 15px ${btn.accentGlow}`,
+                            backgroundColor: '#14151a',
+                            boxShadow: isActive ? `0 0 10px ${plat.color}40` : 'none',
                           }}
                         >
-                          {renderIcon(btn.iconName, 'w-5 h-5')}
+                          {renderIcon(plat.icon, 'w-4 h-4')}
                         </div>
-                        <div>
+                        <span className="text-[11px] font-bold text-white truncate w-full">
+                          {plat.name}
+                        </span>
+                        <span
+                          className={`text-[9px] px-1.5 py-0.5 rounded-full font-semibold ${
+                            isActive
+                              ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+                              : 'bg-zinc-800 text-zinc-400'
+                          }`}
+                        >
+                          {isActive ? 'Ativo' : 'Oculto'}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* List of Configured Social Buttons */}
+              <div className="space-y-3.5">
+                {config.socialButtons.map((btn, idx) => {
+                  const mainIcons: IconName[] = [
+                    'Facebook',
+                    'Instagram',
+                    'WhatsApp',
+                    'YouTube',
+                    'TikTok',
+                    'X',
+                    'Site',
+                  ];
+                  const otherIcons: IconName[] = [
+                    'Linkedin',
+                    'Send',
+                    'Mail',
+                    'Phone',
+                    'Video',
+                    'Music2',
+                    'FileText',
+                    'Bookmark',
+                    'Share2',
+                  ];
+
+                  return (
+                    <div
+                      key={btn.id}
+                      className={`p-4 rounded-2xl border transition-all ${
+                        btn.active
+                          ? 'bg-zinc-900/60 border-zinc-800'
+                          : 'bg-zinc-950/40 border-zinc-900 opacity-60'
+                      }`}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-10 h-10 rounded-xl flex items-center justify-center text-white border border-white/10"
+                            style={{
+                              backgroundColor: '#18191e',
+                              boxShadow: `0 0 15px ${btn.accentGlow}`,
+                            }}
+                          >
+                            {renderIcon(btn.iconName, 'w-5 h-5')}
+                          </div>
+                          <div>
+                            <input
+                              type="text"
+                              value={btn.name}
+                              onChange={(e) => {
+                                const updated = [...config.socialButtons];
+                                updated[idx] = { ...updated[idx], name: e.target.value };
+                                updateConfig((prev) => ({ ...prev, socialButtons: updated }));
+                              }}
+                              className="font-bold text-sm bg-transparent border-b border-transparent hover:border-zinc-700 focus:border-purple-500 text-white focus:outline-none"
+                            />
+                            <span className="text-[10px] text-zinc-400 block">ID: {btn.id}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <label className="flex items-center gap-1.5 text-xs text-zinc-300 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={btn.active}
+                              onChange={(e) => {
+                                const updated = [...config.socialButtons];
+                                updated[idx] = { ...updated[idx], active: e.target.checked };
+                                updateConfig((prev) => ({ ...prev, socialButtons: updated }));
+                              }}
+                              className="rounded bg-zinc-900 border-zinc-700 text-purple-600 focus:ring-0"
+                            />
+                            <span>{btn.active ? 'Ativo' : 'Oculto'}</span>
+                          </label>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = config.socialButtons.filter((_, i) => i !== idx);
+                              updateConfig((prev) => ({ ...prev, socialButtons: updated }));
+                            }}
+                            className="p-1.5 text-zinc-500 hover:text-red-400 transition-colors cursor-pointer"
+                            title="Remover botão"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="sm:col-span-2">
+                          <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                            URL / Link de Destino
+                          </label>
                           <input
                             type="text"
-                            value={btn.name}
+                            value={btn.url}
                             onChange={(e) => {
                               const updated = [...config.socialButtons];
-                              updated[idx] = { ...updated[idx], name: e.target.value };
+                              updated[idx] = { ...updated[idx], url: e.target.value };
                               updateConfig((prev) => ({ ...prev, socialButtons: updated }));
                             }}
-                            className="font-bold text-sm bg-transparent border-b border-transparent hover:border-zinc-700 focus:border-purple-500 text-white focus:outline-none"
+                            placeholder="https://..."
+                            className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
                           />
-                          <span className="text-[10px] text-zinc-400 block">ID: {btn.id}</span>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+                            Ícone Oficial
+                          </label>
+                          <select
+                            value={btn.iconName}
+                            onChange={(e) => {
+                              const newIcon = e.target.value as IconName;
+                              const updated = [...config.socialButtons];
+
+                              // Brand default presets mapping
+                              const brandDefaults: Record<string, { glow: string; ring: string }> = {
+                                Facebook: { glow: 'rgba(24, 119, 242, 0.45)', ring: 'from-blue-600 via-blue-500 to-sky-400' },
+                                Instagram: { glow: 'rgba(225, 48, 108, 0.45)', ring: 'from-pink-500 via-purple-500 to-amber-500' },
+                                WhatsApp: { glow: 'rgba(37, 211, 102, 0.45)', ring: 'from-emerald-500 via-green-500 to-teal-400' },
+                                Whatsapp: { glow: 'rgba(37, 211, 102, 0.45)', ring: 'from-emerald-500 via-green-500 to-teal-400' },
+                                YouTube: { glow: 'rgba(239, 68, 68, 0.45)', ring: 'from-red-600 via-rose-500 to-red-500' },
+                                Youtube: { glow: 'rgba(239, 68, 68, 0.45)', ring: 'from-red-600 via-rose-500 to-red-500' },
+                                TikTok: { glow: 'rgba(37, 244, 238, 0.45)', ring: 'from-cyan-400 via-pink-500 to-rose-600' },
+                                Tiktok: { glow: 'rgba(37, 244, 238, 0.45)', ring: 'from-cyan-400 via-pink-500 to-rose-600' },
+                                X: { glow: 'rgba(255, 255, 255, 0.35)', ring: 'from-zinc-100 via-zinc-400 to-zinc-700' },
+                                Twitter: { glow: 'rgba(255, 255, 255, 0.35)', ring: 'from-zinc-100 via-zinc-400 to-zinc-700' },
+                                Site: { glow: 'rgba(168, 85, 247, 0.4)', ring: 'from-indigo-500 via-purple-500 to-pink-500' },
+                                Globe: { glow: 'rgba(168, 85, 247, 0.4)', ring: 'from-indigo-500 via-purple-500 to-pink-500' },
+                              };
+
+                              const brandStyle = brandDefaults[newIcon];
+
+                              updated[idx] = {
+                                ...updated[idx],
+                                iconName: newIcon,
+                                ...(brandStyle ? { accentGlow: brandStyle.glow, gradientRing: brandStyle.ring } : {}),
+                              };
+                              updateConfig((prev) => ({ ...prev, socialButtons: updated }));
+                            }}
+                            className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                          >
+                            <optgroup label="Principais Redes Oficiais">
+                              {mainIcons.map((name) => (
+                                <option key={name} value={name}>
+                                  {name}
+                                </option>
+                              ))}
+                            </optgroup>
+                            <optgroup label="Outros Ícones">
+                              {otherIcons.map((name) => (
+                                <option key={name} value={name}>
+                                  {name}
+                                </option>
+                              ))}
+                            </optgroup>
+                          </select>
                         </div>
                       </div>
-
-                      <div className="flex items-center gap-2">
-                        <label className="flex items-center gap-1.5 text-xs text-zinc-300 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={btn.active}
-                            onChange={(e) => {
-                              const updated = [...config.socialButtons];
-                              updated[idx] = { ...updated[idx], active: e.target.checked };
-                              updateConfig((prev) => ({ ...prev, socialButtons: updated }));
-                            }}
-                            className="rounded bg-zinc-900 border-zinc-700 text-purple-600 focus:ring-0"
-                          />
-                          <span>{btn.active ? 'Ativo' : 'Oculto'}</span>
-                        </label>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const updated = config.socialButtons.filter((_, i) => i !== idx);
-                            updateConfig((prev) => ({ ...prev, socialButtons: updated }));
-                          }}
-                          className="p-1.5 text-zinc-500 hover:text-red-400 transition-colors cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
                     </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div className="sm:col-span-2">
-                        <label className="block text-[11px] font-medium text-zinc-400 mb-1">
-                          URL / Link de Destino
-                        </label>
-                        <input
-                          type="text"
-                          value={btn.url}
-                          onChange={(e) => {
-                            const updated = [...config.socialButtons];
-                            updated[idx] = { ...updated[idx], url: e.target.value };
-                            updateConfig((prev) => ({ ...prev, socialButtons: updated }));
-                          }}
-                          placeholder="https://..."
-                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-medium text-zinc-400 mb-1">
-                          Ícone
-                        </label>
-                        <select
-                          value={btn.iconName}
-                          onChange={(e) => {
-                            const updated = [...config.socialButtons];
-                            updated[idx] = {
-                              ...updated[idx],
-                              iconName: e.target.value as IconName,
-                            };
-                            updateConfig((prev) => ({ ...prev, socialButtons: updated }));
-                          }}
-                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
-                        >
-                          {Object.keys(AVAILABLE_ICONS).map((name) => (
-                            <option key={name} value={name}>
-                              {name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -1332,105 +1476,445 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onViewPublic }) 
               <div>
                 <h2 className="text-lg font-bold text-white flex items-center gap-2">
                   <Award className="w-5 h-5 text-amber-400" />
-                  Cases de Sucesso & Depoimentos Reais
+                  Cases de Sucesso & Resultados Reais
                 </h2>
                 <p className="text-xs text-zinc-400 mt-1">
-                  Gerencie os resultados exibidos no modal de cases e as avaliações no toast flutuante.
+                  Configure exatamente o que aparece na página pública: o botão de ação na barra de contatos, o cabeçalho do modal e cada um dos cards de transformação.
                 </p>
               </div>
 
-              {/* Case Studies */}
-              <div className="space-y-3">
+              {/* Botão & Textos do Modal da Página Pública */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-800/80 pb-3">
+                  <div>
+                    <h3 className="text-xs font-semibold text-white uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                      Estrutura & Textos do Modal na Página Pública
+                    </h3>
+                    <p className="text-[11px] text-zinc-400">
+                      Personalize o botão que fica na barra ao lado do WhatsApp e todos os títulos do modal de resultados.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateConfig((prev) => ({
+                        ...prev,
+                        caseStudiesSection: DEFAULT_SITE_CONFIG.caseStudiesSection,
+                        caseStudies: DEFAULT_SITE_CONFIG.caseStudies,
+                      }));
+                      showNotification('Cases e textos do modal restaurados para o padrão da página pública!');
+                    }}
+                    className="px-3 py-1.5 rounded-xl text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 flex items-center gap-1.5 cursor-pointer transition-colors self-start sm:self-auto"
+                    title="Restaura os cases originais e remove textos antigos de templates anteriores"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Restaurar Cases Padrão</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-300 mb-1">
+                      Texto do Botão na Página (Barra ao lado do WhatsApp)
+                    </label>
+                    <input
+                      type="text"
+                      value={config.caseStudiesSection?.buttonLabel ?? 'Resultados'}
+                      onChange={(e) =>
+                        updateConfig((prev) => ({
+                          ...prev,
+                          caseStudiesSection: {
+                            buttonLabel: e.target.value,
+                            modalBadge: prev.caseStudiesSection?.modalBadge || DEFAULT_SITE_CONFIG.caseStudiesSection!.modalBadge,
+                            modalTitle: prev.caseStudiesSection?.modalTitle || DEFAULT_SITE_CONFIG.caseStudiesSection!.modalTitle,
+                            modalSubtitle: prev.caseStudiesSection?.modalSubtitle || DEFAULT_SITE_CONFIG.caseStudiesSection!.modalSubtitle,
+                            ctaButtonText: prev.caseStudiesSection?.ctaButtonText || DEFAULT_SITE_CONFIG.caseStudiesSection!.ctaButtonText,
+                            ctaMessage: prev.caseStudiesSection?.ctaMessage || DEFAULT_SITE_CONFIG.caseStudiesSection!.ctaMessage,
+                          },
+                        }))
+                      }
+                      placeholder="Ex: Resultados"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-amber-300 font-semibold focus:outline-none focus:border-amber-500"
+                    />
+                    <p className="text-[10px] text-zinc-500 mt-1">
+                      Aparece com ícone de medalha (Award) na barra de botões principais.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-300 mb-1">
+                      Selo / Tag no Topo do Modal
+                    </label>
+                    <input
+                      type="text"
+                      value={config.caseStudiesSection?.modalBadge ?? 'Casos Reais & Métricas'}
+                      onChange={(e) =>
+                        updateConfig((prev) => ({
+                          ...prev,
+                          caseStudiesSection: {
+                            buttonLabel: prev.caseStudiesSection?.buttonLabel || DEFAULT_SITE_CONFIG.caseStudiesSection!.buttonLabel,
+                            modalBadge: e.target.value,
+                            modalTitle: prev.caseStudiesSection?.modalTitle || DEFAULT_SITE_CONFIG.caseStudiesSection!.modalTitle,
+                            modalSubtitle: prev.caseStudiesSection?.modalSubtitle || DEFAULT_SITE_CONFIG.caseStudiesSection!.modalSubtitle,
+                            ctaButtonText: prev.caseStudiesSection?.ctaButtonText || DEFAULT_SITE_CONFIG.caseStudiesSection!.ctaButtonText,
+                            ctaMessage: prev.caseStudiesSection?.ctaMessage || DEFAULT_SITE_CONFIG.caseStudiesSection!.ctaMessage,
+                          },
+                        }))
+                      }
+                      placeholder="Ex: Casos Reais & Métricas"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-300 mb-1">
+                      Título Principal do Modal
+                    </label>
+                    <input
+                      type="text"
+                      value={config.caseStudiesSection?.modalTitle ?? 'Resultados & Transformações'}
+                      onChange={(e) =>
+                        updateConfig((prev) => ({
+                          ...prev,
+                          caseStudiesSection: {
+                            buttonLabel: prev.caseStudiesSection?.buttonLabel || DEFAULT_SITE_CONFIG.caseStudiesSection!.buttonLabel,
+                            modalBadge: prev.caseStudiesSection?.modalBadge || DEFAULT_SITE_CONFIG.caseStudiesSection!.modalBadge,
+                            modalTitle: e.target.value,
+                            modalSubtitle: prev.caseStudiesSection?.modalSubtitle || DEFAULT_SITE_CONFIG.caseStudiesSection!.modalSubtitle,
+                            ctaButtonText: prev.caseStudiesSection?.ctaButtonText || DEFAULT_SITE_CONFIG.caseStudiesSection!.ctaButtonText,
+                            ctaMessage: prev.caseStudiesSection?.ctaMessage || DEFAULT_SITE_CONFIG.caseStudiesSection!.ctaMessage,
+                          },
+                        }))
+                      }
+                      placeholder="Ex: Resultados & Transformações"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white font-bold focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-300 mb-1">
+                      Texto do Botão de WhatsApp (Conversão no Rodapé do Modal)
+                    </label>
+                    <input
+                      type="text"
+                      value={config.caseStudiesSection?.ctaButtonText ?? 'Quero Resultados Semelhantes no Meu Negócio'}
+                      onChange={(e) =>
+                        updateConfig((prev) => ({
+                          ...prev,
+                          caseStudiesSection: {
+                            buttonLabel: prev.caseStudiesSection?.buttonLabel || DEFAULT_SITE_CONFIG.caseStudiesSection!.buttonLabel,
+                            modalBadge: prev.caseStudiesSection?.modalBadge || DEFAULT_SITE_CONFIG.caseStudiesSection!.modalBadge,
+                            modalTitle: prev.caseStudiesSection?.modalTitle || DEFAULT_SITE_CONFIG.caseStudiesSection!.modalTitle,
+                            modalSubtitle: prev.caseStudiesSection?.modalSubtitle || DEFAULT_SITE_CONFIG.caseStudiesSection!.modalSubtitle,
+                            ctaButtonText: e.target.value,
+                            ctaMessage: prev.caseStudiesSection?.ctaMessage || DEFAULT_SITE_CONFIG.caseStudiesSection!.ctaMessage,
+                          },
+                        }))
+                      }
+                      placeholder="Ex: Quero Resultados Semelhantes no Meu Negócio"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-emerald-300 font-medium focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-semibold text-zinc-300 mb-1">
+                      Subtítulo / Descrição Introdutória do Modal
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={
+                        config.caseStudiesSection?.modalSubtitle ??
+                        'Alguns dos impactos gerados com posicionamento estratégico e gestão profissional de redes.'
+                      }
+                      onChange={(e) =>
+                        updateConfig((prev) => ({
+                          ...prev,
+                          caseStudiesSection: {
+                            buttonLabel: prev.caseStudiesSection?.buttonLabel || DEFAULT_SITE_CONFIG.caseStudiesSection!.buttonLabel,
+                            modalBadge: prev.caseStudiesSection?.modalBadge || DEFAULT_SITE_CONFIG.caseStudiesSection!.modalBadge,
+                            modalTitle: prev.caseStudiesSection?.modalTitle || DEFAULT_SITE_CONFIG.caseStudiesSection!.modalTitle,
+                            modalSubtitle: e.target.value,
+                            ctaButtonText: prev.caseStudiesSection?.ctaButtonText || DEFAULT_SITE_CONFIG.caseStudiesSection!.ctaButtonText,
+                            ctaMessage: prev.caseStudiesSection?.ctaMessage || DEFAULT_SITE_CONFIG.caseStudiesSection!.ctaMessage,
+                          },
+                        }))
+                      }
+                      placeholder="Descrição introdutória do modal..."
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-purple-500 leading-relaxed"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-semibold text-zinc-300 mb-1">
+                      Mensagem Pré-configurada ao Iniciar Conversa no WhatsApp
+                    </label>
+                    <input
+                      type="text"
+                      value={
+                        config.caseStudiesSection?.ctaMessage ??
+                        'Olá {nome}! Vi os cases no seu perfil e quero entender como alcançar resultados semelhantes no meu negócio.'
+                      }
+                      onChange={(e) =>
+                        updateConfig((prev) => ({
+                          ...prev,
+                          caseStudiesSection: {
+                            buttonLabel: prev.caseStudiesSection?.buttonLabel || DEFAULT_SITE_CONFIG.caseStudiesSection!.buttonLabel,
+                            modalBadge: prev.caseStudiesSection?.modalBadge || DEFAULT_SITE_CONFIG.caseStudiesSection!.modalBadge,
+                            modalTitle: prev.caseStudiesSection?.modalTitle || DEFAULT_SITE_CONFIG.caseStudiesSection!.modalTitle,
+                            modalSubtitle: prev.caseStudiesSection?.modalSubtitle || DEFAULT_SITE_CONFIG.caseStudiesSection!.modalSubtitle,
+                            ctaButtonText: prev.caseStudiesSection?.ctaButtonText || DEFAULT_SITE_CONFIG.caseStudiesSection!.ctaButtonText,
+                            ctaMessage: e.target.value,
+                          },
+                        }))
+                      }
+                      placeholder="Ex: Olá {nome}! Vi os cases..."
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-purple-500"
+                    />
+                    <p className="text-[10px] text-zinc-500 mt-1">
+                      Use <code>&#123;nome&#125;</code> para preencher com o seu nome profissional automaticamente.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Case Studies Cards List */}
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-white uppercase tracking-wider">
-                    Cases de Sucesso
-                  </h3>
+                  <div>
+                    <h3 className="text-xs font-semibold text-white uppercase tracking-wider flex items-center gap-1.5">
+                      <Layers className="w-3.5 h-3.5 text-purple-400" />
+                      Cards Individuais de Cases ({config.caseStudies.length})
+                    </h3>
+                    <p className="text-[11px] text-zinc-400">
+                      Itens listados dentro do modal da página pública, com nicho, selo colorido, estratégia e resultado mensurável.
+                    </p>
+                  </div>
                   <button
                     type="button"
                     onClick={() => {
                       const newCase: CaseStudyConfig = {
                         id: `case-${Date.now()}`,
-                        niche: 'Novo Nicho de Mercado',
-                        highlightMetric: '+1.500% Alcance',
+                        niche: 'Novo Nicho / Segmento',
+                        highlightMetric: '+2.500% no Alcance',
                         badgeColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
-                        description: 'Descrição da estratégia implementada.',
-                        result: 'Resultado real obtido pelo cliente.',
+                        description: 'Descrição clara da estratégia implementada no projeto.',
+                        result: 'Resultado real e mensurável alcançado.',
                       };
                       updateConfig((prev) => ({
                         ...prev,
                         caseStudies: [...prev.caseStudies, newCase],
                       }));
                     }}
-                    className="px-2.5 py-1 rounded-lg text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 flex items-center gap-1 cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl text-xs font-medium bg-purple-600 hover:bg-purple-500 text-white flex items-center gap-1.5 cursor-pointer shadow-md transition-colors"
                   >
                     <Plus className="w-3.5 h-3.5" /> Adicionar Case
                   </button>
                 </div>
 
-                {config.caseStudies.map((cs, idx) => (
-                  <div key={cs.id} className="p-4 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">
-                        <input
-                          type="text"
-                          value={cs.niche}
+                {config.caseStudies.map((cs, idx) => {
+                  const badgeOptions = [
+                    { label: 'Esmeralda', val: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' },
+                    { label: 'Azul Sky', val: 'text-sky-400 bg-sky-500/10 border-sky-500/30' },
+                    { label: 'Dourado', val: 'text-amber-400 bg-amber-500/10 border-amber-500/30' },
+                    { label: 'Roxo Neon', val: 'text-purple-400 bg-purple-500/10 border-purple-500/30' },
+                    { label: 'Rosa Rose', val: 'text-rose-400 bg-rose-500/10 border-rose-500/30' },
+                  ];
+
+                  return (
+                    <div key={cs.id} className="p-4 sm:p-5 rounded-2xl bg-zinc-900/70 border border-zinc-800 space-y-3.5">
+                      <div className="flex items-center justify-between gap-2 border-b border-zinc-800/80 pb-2.5">
+                        <span className="text-xs font-bold text-zinc-300">Case #{idx + 1}</span>
+                        {config.caseStudies.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = config.caseStudies.filter((_, i) => i !== idx);
+                              updateConfig((prev) => ({ ...prev, caseStudies: updated }));
+                            }}
+                            className="p-1.5 text-zinc-500 hover:text-red-400 transition-colors cursor-pointer flex items-center gap-1 text-xs"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Remover</span>
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-semibold text-zinc-300 mb-1">
+                            Nicho / Segmento do Cliente
+                          </label>
+                          <input
+                            type="text"
+                            value={cs.niche}
+                            onChange={(e) => {
+                              const updated = [...config.caseStudies];
+                              updated[idx] = { ...updated[idx], niche: e.target.value };
+                              updateConfig((prev) => ({ ...prev, caseStudies: updated }));
+                            }}
+                            placeholder="Ex: Moda & Varejo Local"
+                            className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-zinc-300 mb-1">
+                            Métrica em Destaque no Selo
+                          </label>
+                          <input
+                            type="text"
+                            value={cs.highlightMetric}
+                            onChange={(e) => {
+                              const updated = [...config.caseStudies];
+                              updated[idx] = { ...updated[idx], highlightMetric: e.target.value };
+                              updateConfig((prev) => ({ ...prev, caseStudies: updated }));
+                            }}
+                            placeholder="Ex: +2.800% no Alcance"
+                            className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-emerald-400 font-bold focus:outline-none focus:border-purple-500"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Badge color selector */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-zinc-400 mb-1.5">
+                          Cor & Destaque do Selo:
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {badgeOptions.map((opt) => (
+                            <button
+                              key={opt.val}
+                              type="button"
+                              onClick={() => {
+                                const updated = [...config.caseStudies];
+                                updated[idx] = { ...updated[idx], badgeColor: opt.val };
+                                updateConfig((prev) => ({ ...prev, caseStudies: updated }));
+                              }}
+                              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${opt.val} ${
+                                cs.badgeColor === opt.val ? 'ring-2 ring-white scale-105' : 'opacity-70 hover:opacity-100'
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-semibold text-zinc-300 mb-1">
+                          Descrição da Estratégia / Projeto
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={cs.description}
                           onChange={(e) => {
                             const updated = [...config.caseStudies];
-                            updated[idx] = { ...updated[idx], niche: e.target.value };
+                            updated[idx] = { ...updated[idx], description: e.target.value };
                             updateConfig((prev) => ({ ...prev, caseStudies: updated }));
                           }}
-                          placeholder="Nicho do cliente"
-                          className="bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-white"
-                        />
-                        <input
-                          type="text"
-                          value={cs.highlightMetric}
-                          onChange={(e) => {
-                            const updated = [...config.caseStudies];
-                            updated[idx] = { ...updated[idx], highlightMetric: e.target.value };
-                            updateConfig((prev) => ({ ...prev, caseStudies: updated }));
-                          }}
-                          placeholder="Métrica de Destaque"
-                          className="bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-emerald-400 font-semibold"
+                          placeholder="Descreva a estratégia implementada para alcançar os resultados..."
+                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-purple-500 leading-relaxed"
                         />
                       </div>
-                      {config.caseStudies.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const updated = config.caseStudies.filter((_, i) => i !== idx);
+
+                      <div>
+                        <label className="block text-[11px] font-semibold text-zinc-300 mb-1">
+                          Resultado Final Mensurável (com Selo Verde de Confirmação)
+                        </label>
+                        <input
+                          type="text"
+                          value={cs.result}
+                          onChange={(e) => {
+                            const updated = [...config.caseStudies];
+                            updated[idx] = { ...updated[idx], result: e.target.value };
                             updateConfig((prev) => ({ ...prev, caseStudies: updated }));
                           }}
-                          className="p-1.5 text-zinc-500 hover:text-red-400 transition-colors cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
+                          placeholder="Ex: +180 atendimentos de compra no Direct no 1º mês"
+                          className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-emerald-300 font-medium focus:outline-none focus:border-emerald-500"
+                        />
+                      </div>
+
+                      {/* Visual Preview identical to PublicPage modal */}
+                      <div className="pt-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block mb-1.5">
+                          Prévia deste Card (Exatamente como aparece na Página Pública):
+                        </span>
+                        <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 text-left">
+                          <div className="flex items-center justify-between gap-2 mb-1.5">
+                            <span className="text-xs font-bold text-zinc-200">{cs.niche || 'Nicho do Case'}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${cs.badgeColor}`}>
+                              {cs.highlightMetric || '+0%'}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-zinc-400 mb-2 leading-relaxed">
+                            {cs.description || 'Descrição da estratégia implementada.'}
+                          </p>
+                          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                            <span>{cs.result || 'Resultado alcançado'}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <textarea
-                      rows={2}
-                      value={cs.description}
-                      onChange={(e) => {
-                        const updated = [...config.caseStudies];
-                        updated[idx] = { ...updated[idx], description: e.target.value };
-                        updateConfig((prev) => ({ ...prev, caseStudies: updated }));
-                      }}
-                      placeholder="Descrição do projeto"
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300"
-                    />
-                    <input
-                      type="text"
-                      value={cs.result}
-                      onChange={(e) => {
-                        const updated = [...config.caseStudies];
-                        updated[idx] = { ...updated[idx], result: e.target.value };
-                        updateConfig((prev) => ({ ...prev, caseStudies: updated }));
-                      }}
-                      placeholder="Resultado obtido"
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-amber-300 font-medium"
-                    />
+                  );
+                })}
+              </div>
+
+              {/* Full Modal Live Preview (1:1 with PublicPage) */}
+              <div className="p-5 rounded-3xl bg-zinc-950 border border-amber-500/20 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+                    <Award className="w-4 h-4" />
+                    Prévia Completa do Modal (Visual 100% Idêntico à Página Pública)
+                  </span>
+                  <span className="text-[10px] text-zinc-500">
+                    Ao clicar no botão "{config.caseStudiesSection?.buttonLabel ?? 'Resultados'}"
+                  </span>
+                </div>
+
+                <div className="max-w-md mx-auto p-5 sm:p-6 rounded-3xl bg-[#131417] border border-white/20 shadow-2xl text-white">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-[11px] font-semibold text-amber-300 mb-2.5">
+                    <Award className="w-3.5 h-3.5" />
+                    <span>{config.caseStudiesSection?.modalBadge || 'Casos Reais & Métricas'}</span>
                   </div>
-                ))}
+
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-1">
+                    {config.caseStudiesSection?.modalTitle || 'Resultados & Transformações'}
+                  </h3>
+                  <p className="text-xs text-zinc-400 mb-4 leading-relaxed">
+                    {config.caseStudiesSection?.modalSubtitle ||
+                      'Alguns dos impactos gerados com posicionamento estratégico e gestão profissional de redes.'}
+                  </p>
+
+                  <div className="space-y-2.5 mb-5 max-h-64 overflow-y-auto pr-1">
+                    {config.caseStudies.map((c) => (
+                      <div
+                        key={c.id}
+                        className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 text-left"
+                      >
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <span className="text-xs font-bold text-zinc-200">{c.niche}</span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${c.badgeColor}`}>
+                            {c.highlightMetric}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-zinc-400 mb-2 leading-relaxed">
+                          {c.description}
+                        </p>
+                        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-300 bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20">
+                          <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                          <span>{c.result}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-lg">
+                    <MessageCircle className="w-4 h-4" />
+                    <span>{config.caseStudiesSection?.ctaButtonText || 'Quero Resultados Semelhantes no Meu Negócio'}</span>
+                  </div>
+                </div>
               </div>
 
               {/* Testimonials */}
@@ -1818,15 +2302,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onViewPublic }) 
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-xs font-semibold text-white">
-                      Script SQL para Criar a Tabela no Supabase
+                      Script SQL para Criação da Tabela no Supabase
                     </h3>
                     <p className="text-[11px] text-zinc-400">
-                      Cole no menu <strong>SQL Editor</strong> do painel Supabase e clique em <strong>Run</strong>.
+                      Cole no menu <strong>SQL Editor</strong> do painel Supabase e clique em <strong>Run</strong> para sincronizar seu site.
                     </p>
                   </div>
                   <button
                     type="button"
-                    onClick={handleCopySql}
+                    onClick={() => {
+                      const sql = getSupabaseSqlInstructions();
+                      if (navigator?.clipboard) {
+                        navigator.clipboard.writeText(sql);
+                        setCopiedSql(true);
+                        setTimeout(() => setCopiedSql(false), 2500);
+                        showNotification('Script SQL copiado com sucesso!');
+                      }
+                    }}
                     className="px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 flex items-center gap-1.5 cursor-pointer"
                   >
                     {copiedSql ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
@@ -1834,7 +2326,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onViewPublic }) 
                   </button>
                 </div>
 
-                <pre className="p-3 bg-zinc-950 rounded-xl border border-zinc-800 text-[11px] font-mono text-zinc-300 overflow-x-auto max-h-48">
+                <pre className="p-3 bg-zinc-950 rounded-xl border border-zinc-800 text-[11px] font-mono text-zinc-300 overflow-x-auto max-h-56">
                   {getSupabaseSqlInstructions()}
                 </pre>
               </div>

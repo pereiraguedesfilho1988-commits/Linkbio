@@ -26,7 +26,7 @@ export interface SocialButtonConfig {
   id: string;
   name: string;
   url: string;
-  iconName: 'Instagram' | 'Facebook' | 'MessageCircle' | 'Globe' | 'Youtube' | 'Linkedin' | 'Twitter' | 'Send' | 'Mail' | 'Phone';
+  iconName: string;
   accentGlow: string;
   gradientRing: string;
   floatDelay: number;
@@ -40,6 +40,15 @@ export interface ServiceOptionConfig {
   emoji: string;
   messageText: string;
   active: boolean;
+}
+
+export interface CaseStudiesSectionConfig {
+  buttonLabel: string;
+  modalBadge: string;
+  modalTitle: string;
+  modalSubtitle: string;
+  ctaButtonText: string;
+  ctaMessage: string;
 }
 
 export interface CaseStudyConfig {
@@ -106,6 +115,7 @@ export interface SiteConfig {
   services: ServiceOptionConfig[];
   whatsappNumber: string;
   caseStudies: CaseStudyConfig[];
+  caseStudiesSection?: CaseStudiesSectionConfig;
   testimonials: TestimonialConfig[];
   metrics: MetricsConfig;
   background: BackgroundConfig;

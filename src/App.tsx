@@ -7,31 +7,25 @@ import { AdminDashboard } from './admin/AdminDashboard';
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
-  const [currentPath, setCurrentPath] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      const path = window.location.pathname;
-      const hash = window.location.hash;
-      const search = new URLSearchParams(window.location.search);
-      if (path === '/admin' || hash === '#admin' || hash.startsWith('#/admin') || search.get('view') === 'admin') {
-        return '/admin';
-      }
-      return '/';
-    }
-    return '/';
-  });
+  const [isAdminRoute, setIsAdminRoute] = useState(() => checkIsAdmin());
+
+  function checkIsAdmin() {
+    if (typeof window === 'undefined') return false;
+    const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
+    const hash = window.location.hash.replace(/^#\/?/, '');
+    const search = new URLSearchParams(window.location.search);
+    return (
+      path === 'admin' ||
+      hash === 'admin' ||
+      hash.startsWith('admin') ||
+      search.get('view') === 'admin'
+    );
+  }
 
   useEffect(() => {
     const handleLocationChange = () => {
-      const path = window.location.pathname;
-      const hash = window.location.hash;
-      const search = new URLSearchParams(window.location.search);
-      if (path === '/admin' || hash === '#admin' || hash.startsWith('#/admin') || search.get('view') === 'admin') {
-        setCurrentPath('/admin');
-      } else {
-        setCurrentPath('/');
-      }
+      setIsAdminRoute(checkIsAdmin());
     };
-
     window.addEventListener('popstate', handleLocationChange);
     window.addEventListener('hashchange', handleLocationChange);
     return () => {
@@ -43,18 +37,20 @@ function AppContent() {
   const navigateTo = (path: string) => {
     if (typeof window !== 'undefined') {
       window.history.pushState(null, '', path);
-      setCurrentPath(path);
+      setIsAdminRoute(checkIsAdmin());
       window.scrollTo(0, 0);
     }
   };
 
-  if (currentPath === '/admin') {
+  // Render Admin View
+  if (isAdminRoute) {
     if (!isAuthenticated) {
       return <AdminLogin onBackToPublic={() => navigateTo('/')} />;
     }
     return <AdminDashboard onViewPublic={() => navigateTo('/')} />;
   }
 
+  // Render Single Main Public Page
   return <PublicPage onOpenAdmin={() => navigateTo('/admin')} />;
 }
 

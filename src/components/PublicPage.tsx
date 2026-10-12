@@ -34,6 +34,10 @@ import bgStudioImg from '../assets/images/dark_studio_bg_1791390886071.jpg';
 
 interface PublicPageProps {
   onOpenAdmin: () => void;
+  siteConfig?: import('../types/siteConfig').SiteConfig;
+  siteSlug?: string;
+  isEditMode?: boolean;
+  onElementClick?: (element: 'photo' | 'name' | 'bio' | 'cards' | 'whatsapp' | 'socials' | 'about' | 'metrics') => void;
 }
 
 const resolvePresetUrl = (presetId: string, customUrl: string) => {
@@ -314,9 +318,21 @@ function useParallax() {
   return { smoothX, smoothY };
 }
 
-export const PublicPage: React.FC<PublicPageProps> = ({ onOpenAdmin }) => {
-  const { config } = useSiteConfig();
+export const PublicPage: React.FC<PublicPageProps> = ({
+  onOpenAdmin,
+  siteConfig: propConfig,
+  isEditMode = false,
+  onElementClick,
+}) => {
+  const context = useSiteConfig();
+  const config = propConfig || context.config;
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  const handleEditClick = (element: 'photo' | 'name' | 'bio' | 'cards' | 'whatsapp' | 'socials' | 'about' | 'metrics') => {
+    if (isEditMode && onElementClick) {
+      onElementClick(element);
+    }
+  };
 
   // Parallax transforms
   const { smoothX, smoothY } = useParallax();
@@ -627,7 +643,11 @@ export const PublicPage: React.FC<PublicPageProps> = ({ onOpenAdmin }) => {
                 className="group relative select-none cursor-default"
                 style={{ transformStyle: 'preserve-3d' }}
               >
-                <div className="relative bg-transparent">
+                <div
+                  onClick={() => handleEditClick('photo')}
+                  className={`relative bg-transparent ${isEditMode ? 'cursor-pointer group/photo ring-2 ring-purple-500/50 hover:ring-purple-400 rounded-3xl p-1 transition-all' : ''}`}
+                  title={isEditMode ? 'Clique para trocar a foto de perfil' : undefined}
+                >
                   <img
                     src={config.profile.photoUrl}
                     alt={config.profile.fullName}
@@ -636,6 +656,11 @@ export const PublicPage: React.FC<PublicPageProps> = ({ onOpenAdmin }) => {
                       filter: 'drop-shadow(0 25px 45px rgba(0, 0, 0, 0.85))',
                     }}
                   />
+                  {isEditMode && (
+                    <span className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-xl flex items-center gap-1 whitespace-nowrap">
+                      ✎ Trocar Foto
+                    </span>
+                  )}
                 </div>
               </motion.div>
             </motion.div>
@@ -1008,7 +1033,9 @@ export const PublicPage: React.FC<PublicPageProps> = ({ onOpenAdmin }) => {
                     title="Ver Cases de Sucesso & Resultados"
                   >
                     <Award className="w-4 h-4" />
-                    <span className="hidden sm:inline">Resultados</span>
+                    <span className="hidden sm:inline">
+                      {config.caseStudiesSection?.buttonLabel || 'Resultados'}
+                    </span>
                   </motion.button>
                 )}
 
@@ -1035,7 +1062,7 @@ export const PublicPage: React.FC<PublicPageProps> = ({ onOpenAdmin }) => {
             rotateY: socialRotateY,
             transformStyle: 'preserve-3d',
           }}
-          className="flex flex-row xl:flex-col gap-3.5 sm:gap-4 xl:gap-5 2xl:gap-6 pointer-events-auto shrink-0 my-auto py-4 xl:py-0 justify-center w-full xl:w-auto relative z-30"
+          className="flex flex-row xl:flex-col gap-2.5 sm:gap-3.5 xl:gap-3.5 2xl:gap-4 pointer-events-auto shrink-0 my-auto py-2.5 xl:py-0 justify-center flex-wrap xl:flex-nowrap w-full xl:w-auto relative z-30 max-w-full px-2"
         >
           {activeSocialButtons.map((btn) => {
             const isHovered = hoveredId === btn.id;
@@ -1300,14 +1327,15 @@ export const PublicPage: React.FC<PublicPageProps> = ({ onOpenAdmin }) => {
 
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-[11px] font-semibold text-amber-300 mb-2.5">
                 <Award className="w-3.5 h-3.5" />
-                <span>Casos Reais & Métricas</span>
+                <span>{config.caseStudiesSection?.modalBadge || 'Casos Reais & Métricas'}</span>
               </div>
 
               <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">
-                Resultados & Transformações
+                {config.caseStudiesSection?.modalTitle || 'Resultados & Transformações'}
               </h3>
               <p className="text-xs text-zinc-400 mb-5 leading-relaxed">
-                Alguns dos impactos gerados com posicionamento estratégico e gestão profissional de redes.
+                {config.caseStudiesSection?.modalSubtitle ||
+                  'Alguns dos impactos gerados com posicionamento estratégico e gestão profissional de redes.'}
               </p>
 
               <div className="space-y-3 mb-6">
@@ -1336,14 +1364,19 @@ export const PublicPage: React.FC<PublicPageProps> = ({ onOpenAdmin }) => {
               <div className="space-y-2">
                 <a
                   href={`https://wa.me/?text=${encodeURIComponent(
-                    `Olá ${config.profile.fullName}! Vi os cases no seu perfil e quero entender como alcançar resultados semelhantes no meu negócio.`
+                    (
+                      config.caseStudiesSection?.ctaMessage ||
+                      'Olá {nome}! Vi os cases no seu perfil e quero entender como alcançar resultados semelhantes no meu negócio.'
+                    ).replace('{nome}', config.profile.fullName)
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 text-white font-semibold text-xs sm:text-sm hover:opacity-95 transition-opacity shadow-lg cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>Quero Resultados Semelhantes no Meu Negócio</span>
+                  <span>
+                    {config.caseStudiesSection?.ctaButtonText || 'Quero Resultados Semelhantes no Meu Negócio'}
+                  </span>
                 </a>
 
                 <button
