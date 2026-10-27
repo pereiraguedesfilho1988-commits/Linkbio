@@ -385,17 +385,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onViewPublic }) 
 
               {/* Photo uploader */}
               <div className="p-4 rounded-2xl bg-zinc-900/60 border border-zinc-800 flex flex-col sm:flex-row items-center gap-5">
-                <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-zinc-700 bg-zinc-950 shrink-0 shadow-lg">
-                  <img
-                    src={config.profile.photoUrl}
-                    alt="Preview de Perfil"
-                    className="w-full h-full object-cover"
-                  />
+                <div className="relative rounded-full p-[3px] bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] shadow-xl shrink-0">
+                  <div className="rounded-full p-[2.5px] bg-[#0c0d10]">
+                    <div className="relative w-22 h-22 rounded-full overflow-hidden bg-zinc-950 aspect-square">
+                      <img
+                        src={config.profile.photoUrl}
+                        alt="Preview de Perfil"
+                        className="w-full h-full object-cover object-top"
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="flex-1 space-y-2 text-center sm:text-left">
-                  <h3 className="text-sm font-semibold text-white">Foto de Apresentação (3D Cutout)</h3>
+                  <h3 className="text-sm font-semibold text-white flex items-center justify-center sm:justify-start gap-2">
+                    <span>Foto de Perfil Circular (Borda Instagram)</span>
+                    <span className="px-2 py-0.5 rounded-full bg-pink-500/15 border border-pink-500/30 text-[10px] text-pink-300 font-medium">
+                      Estilo Instagram
+                    </span>
+                  </h3>
                   <p className="text-xs text-zinc-400">
-                    A foto é exibida com física de paralaxe 2.5D na página pública. Para melhor resultado, use uma foto com fundo transparente ou escuro.
+                    A foto é exibida no formato circular com anel gradiente idêntico ao do Instagram na página pública.
                   </p>
                   <div className="flex flex-wrap gap-2 pt-1 justify-center sm:justify-start">
                     <button

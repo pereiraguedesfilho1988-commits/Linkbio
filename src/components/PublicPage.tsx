@@ -604,11 +604,11 @@ export const PublicPage: React.FC<PublicPageProps> = ({
           duration: 1.2,
           ease: [0.16, 1, 0.3, 1],
         }}
-        className="fixed inset-0 flex flex-col xl:flex-row items-center justify-between px-3 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:px-14 z-20 pointer-events-none overflow-y-auto xl:overflow-visible py-8 xl:py-0"
+        className="fixed inset-0 flex flex-col xl:flex-row items-center justify-center px-3 sm:px-6 md:px-8 lg:px-8 xl:px-8 2xl:px-12 z-20 pointer-events-none overflow-y-auto xl:overflow-visible py-8 xl:py-0"
       >
-        {/* Left & Center Columns */}
-        <div className="flex flex-col xl:flex-row items-center xl:items-center gap-5 sm:gap-6 lg:gap-7 xl:gap-8 pointer-events-auto my-auto max-w-full xl:max-w-[92vw] 2xl:max-w-[88vw]">
-          {/* COLUNA 1: Floating Photo (2.5D lens parallax) */}
+        {/* Unified Desktop & Mobile Flex Row: Photo + Sobre + Perfil + Social Buttons */}
+        <div className="flex flex-col xl:flex-row items-center justify-center gap-5 sm:gap-6 lg:gap-6 xl:gap-6 2xl:gap-8 pointer-events-auto my-auto max-w-full xl:max-w-[1550px] mx-auto w-full px-2 sm:px-4">
+          {/* COLUNA 1: Foto Circular com Borda Gradiente do Instagram (2.5D lens parallax) */}
           <motion.div
             style={{
               x: photoX,
@@ -617,14 +617,14 @@ export const PublicPage: React.FC<PublicPageProps> = ({
               rotateY: photoRotateY,
               transformStyle: 'preserve-3d',
             }}
-            className="relative flex flex-col items-center shrink-0"
+            className="relative flex flex-col items-center shrink-0 mb-2 xl:mb-0"
           >
             <motion.div
               animate={{
-                y: [-6, 6, -6],
+                y: [-5, 5, -5],
               }}
               transition={{
-                duration: 6,
+                duration: 5.5,
                 repeat: Infinity,
                 repeatType: 'mirror',
                 ease: 'easeInOut',
@@ -633,10 +633,10 @@ export const PublicPage: React.FC<PublicPageProps> = ({
             >
               <motion.div
                 whileHover={{
-                  scale: 1.025,
-                  z: 35,
+                  scale: 1.04,
+                  z: 32,
                   transition: {
-                    duration: 0.4,
+                    duration: 0.35,
                     ease: [0.16, 1, 0.3, 1],
                   },
                 }}
@@ -645,22 +645,56 @@ export const PublicPage: React.FC<PublicPageProps> = ({
               >
                 <div
                   onClick={() => handleEditClick('photo')}
-                  className={`relative bg-transparent ${isEditMode ? 'cursor-pointer group/photo ring-2 ring-purple-500/50 hover:ring-purple-400 rounded-3xl p-1 transition-all' : ''}`}
-                  title={isEditMode ? 'Clique para trocar a foto de perfil' : undefined}
+                  className={`relative ${isEditMode ? 'cursor-pointer group/photo ring-2 ring-purple-500/70 hover:ring-purple-400 rounded-full p-1.5 transition-all' : ''}`}
+                  title={isEditMode ? 'Clique para trocar a foto de perfil' : `${config.profile.fullName} • Perfil Oficial`}
                 >
-                  <img
-                    src={config.profile.photoUrl}
-                    alt={config.profile.fullName}
-                    className="max-h-[38vh] sm:max-h-[46vh] lg:max-h-[58vh] xl:max-h-[68vh] 2xl:max-h-[74vh] max-w-[65vw] sm:max-w-[38vw] lg:max-w-[22vw] xl:max-w-[18vw] 2xl:max-w-[20vw] w-auto h-auto object-contain select-none block transition-all duration-500"
+                  {/* Instagram Story Gradient Ring Ambient Aura */}
+                  <div
+                    className="absolute -inset-1.5 sm:-inset-2 rounded-full opacity-65 blur-md pointer-events-none transition-opacity duration-500 group-hover:opacity-95"
                     style={{
-                      filter: 'drop-shadow(0 25px 45px rgba(0, 0, 0, 0.85))',
+                      background:
+                        'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
                     }}
                   />
-                  {isEditMode && (
-                    <span className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-xl flex items-center gap-1 whitespace-nowrap">
-                      ✎ Trocar Foto
+
+                  {/* Authentic Instagram Story Gradient Ring */}
+                  <div
+                    className="relative rounded-full p-[3.5px] sm:p-[4.5px] shadow-[0_15px_35px_-5px_rgba(0,0,0,0.85),0_0_30px_rgba(220,39,67,0.32)] transition-all duration-500"
+                    style={{
+                      background:
+                        'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+                    }}
+                  >
+                    {/* Inner Dark Separation Ring (Authentic Instagram Story Gap) */}
+                    <div className="rounded-full p-[3px] sm:p-[3.5px] bg-[#0c0d10]">
+                      {/* Circular Avatar Container - 100% Round, No Square Frame */}
+                      <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 lg:w-48 lg:h-48 xl:w-52 xl:h-52 2xl:w-56 2xl:h-56 rounded-full overflow-hidden bg-zinc-950 aspect-square">
+                        <img
+                          src={config.profile.photoUrl}
+                          alt={config.profile.fullName}
+                          className="w-full h-full object-cover object-top select-none block transition-transform duration-700 group-hover:scale-108"
+                        />
+
+                        {/* Edit Mode Overlay */}
+                        {isEditMode && (
+                          <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center text-white">
+                            <span className="bg-purple-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-xl flex items-center gap-1">
+                              ✎ Trocar
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Instagram Story / Online Badge at Bottom Center */}
+                  <div className="absolute -bottom-2 sm:-bottom-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 sm:px-3 sm:py-0.5 rounded-full bg-gradient-to-r from-[#f09433] via-[#dc2743] to-[#bc1888] text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-wider shadow-lg flex items-center gap-1.5 border-2 border-[#0c0d10] whitespace-nowrap z-10 pointer-events-none">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
                     </span>
-                  )}
+                    <span className="tracking-wide">Online</span>
+                  </div>
                 </div>
               </motion.div>
             </motion.div>
@@ -1052,111 +1086,111 @@ export const PublicPage: React.FC<PublicPageProps> = ({
               </div>
             </motion.div>
           </motion.div>
-        </div>
 
-        {/* RIGHT SIDE: Floating Social Buttons (100% clickable everywhere) */}
-        <motion.div
-          style={{
-            x: socialX,
-            y: socialY,
-            rotateY: socialRotateY,
-            transformStyle: 'preserve-3d',
-          }}
-          className="flex flex-row xl:flex-col gap-2.5 sm:gap-3.5 xl:gap-3.5 2xl:gap-4 pointer-events-auto shrink-0 my-auto py-2.5 xl:py-0 justify-center flex-wrap xl:flex-nowrap w-full xl:w-auto relative z-30 max-w-full px-2"
-        >
-          {activeSocialButtons.map((btn) => {
-            const isHovered = hoveredId === btn.id;
+          {/* COLUNA 4: BOTÕES DAS REDES SOCIAIS OFICIAIS (Ao lado das informações no desktop, sem espaço vazio) */}
+          <motion.div
+            style={{
+              x: socialX,
+              y: socialY,
+              rotateY: socialRotateY,
+              transformStyle: 'preserve-3d',
+            }}
+            className="flex flex-row xl:flex-col gap-2.5 sm:gap-3 xl:gap-3 2xl:gap-3.5 pointer-events-auto shrink-0 my-auto py-2.5 xl:py-0 justify-center flex-wrap xl:flex-nowrap w-full xl:w-auto relative z-30 max-w-full px-2"
+          >
+            {activeSocialButtons.map((btn) => {
+              const isHovered = hoveredId === btn.id;
 
-            return (
-              <div key={btn.id} className="relative flex items-center justify-end">
-                <AnimatePresence>
-                  {isHovered && (
-                    <motion.div
-                      initial={{ opacity: 0, x: 0, scale: 0.85 }}
-                      animate={{ opacity: 1, x: -26, scale: 1 }}
-                      exit={{ opacity: 0, x: -10, scale: 0.9 }}
-                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                      className="absolute right-full mr-2 pointer-events-none hidden lg:flex items-center z-50"
-                    >
-                      <div className="px-3.5 py-1.5 rounded-xl bg-black/85 backdrop-blur-md border border-white/15 text-zinc-100 text-xs font-medium tracking-wide shadow-2xl flex items-center gap-1.5 whitespace-nowrap pointer-events-none">
-                        <span className="text-[10px] text-zinc-400 font-mono">↖</span>
-                        <span>{btn.name}</span>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+              return (
+                <div key={btn.id} className="relative flex items-center justify-end">
+                  <AnimatePresence>
+                    {isHovered && (
+                      <motion.div
+                        initial={{ opacity: 0, x: 0, scale: 0.85 }}
+                        animate={{ opacity: 1, x: -26, scale: 1 }}
+                        exit={{ opacity: 0, x: -10, scale: 0.9 }}
+                        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                        className="absolute right-full mr-2 pointer-events-none hidden lg:flex items-center z-50"
+                      >
+                        <div className="px-3.5 py-1.5 rounded-xl bg-black/85 backdrop-blur-md border border-white/15 text-zinc-100 text-xs font-medium tracking-wide shadow-2xl flex items-center gap-1.5 whitespace-nowrap pointer-events-none">
+                          <span className="text-[10px] text-zinc-400 font-mono">↖</span>
+                          <span>{btn.name}</span>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
-                <motion.div
-                  animate={{
-                    y: [-4, 4, -4],
-                    rotate: [1, -1, 1],
-                  }}
-                  transition={{
-                    duration: btn.floatDuration || 4.5,
-                    repeat: Infinity,
-                    repeatType: 'mirror',
-                    ease: 'easeInOut',
-                    delay: btn.floatDelay || 0,
-                  }}
-                  className="relative pointer-events-auto"
-                >
-                  <motion.a
-                    href={btn.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onMouseEnter={() => setHoveredId(btn.id)}
-                    onMouseLeave={() => setHoveredId(null)}
-                    whileHover={{
-                      scale: 1.35,
-                      x: -12,
-                      z: 70,
-                      transition: {
-                        duration: 0.4,
-                        ease: [0.16, 1, 0.3, 1],
-                      },
+                  <motion.div
+                    animate={{
+                      y: [-4, 4, -4],
+                      rotate: [1, -1, 1],
                     }}
-                    whileTap={{
-                      scale: 1.15,
-                      transition: { duration: 0.15 },
+                    transition={{
+                      duration: btn.floatDuration || 4.5,
+                      repeat: Infinity,
+                      repeatType: 'mirror',
+                      ease: 'easeInOut',
+                      delay: btn.floatDelay || 0,
                     }}
-                    className="group relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-2xl cursor-pointer focus:outline-none select-none pointer-events-auto"
-                    style={{
-                      transformStyle: 'preserve-3d',
-                    }}
-                    title={btn.name}
-                    aria-label={btn.name}
+                    className="relative pointer-events-auto"
                   >
-                    {/* Glow ring */}
-                    <motion.div
-                      className={`absolute -inset-2 rounded-2xl bg-gradient-to-r ${btn.gradientRing} opacity-0 blur-md transition-opacity duration-500 pointer-events-none`}
-                      animate={{
-                        opacity: isHovered ? 0.75 : 0,
+                    <motion.a
+                      href={btn.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onMouseEnter={() => setHoveredId(btn.id)}
+                      onMouseLeave={() => setHoveredId(null)}
+                      whileHover={{
+                        scale: 1.35,
+                        x: -12,
+                        z: 70,
+                        transition: {
+                          duration: 0.4,
+                          ease: [0.16, 1, 0.3, 1],
+                        },
                       }}
-                    />
-
-                    {/* Shadow */}
-                    <div
-                      className="absolute inset-0 rounded-2xl transition-all duration-500 pointer-events-none"
+                      whileTap={{
+                        scale: 1.15,
+                        transition: { duration: 0.15 },
+                      }}
+                      className="group relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-2xl cursor-pointer focus:outline-none select-none pointer-events-auto"
                       style={{
-                        boxShadow: isHovered
-                          ? `0 25px 45px -8px rgba(0, 0, 0, 0.9), 0 0 35px ${btn.accentGlow}`
-                          : '0 10px 25px -5px rgba(0, 0, 0, 0.6)',
+                        transformStyle: 'preserve-3d',
                       }}
-                    />
+                      title={btn.name}
+                      aria-label={btn.name}
+                    >
+                      {/* Glow ring */}
+                      <motion.div
+                        className={`absolute -inset-2 rounded-2xl bg-gradient-to-r ${btn.gradientRing} opacity-0 blur-md transition-opacity duration-500 pointer-events-none`}
+                        animate={{
+                          opacity: isHovered ? 0.75 : 0,
+                        }}
+                      />
 
-                    {/* Button Surface */}
-                    <div className="relative z-10 flex items-center justify-center w-full h-full rounded-2xl bg-zinc-900/80 backdrop-blur-xl border border-white/15 group-hover:border-white/40 group-hover:bg-zinc-800/85 transition-colors duration-400 overflow-hidden shadow-inner pointer-events-none">
-                      <div className="absolute top-0 inset-x-0 h-[45%] bg-gradient-to-b from-white/15 to-transparent rounded-t-2xl pointer-events-none" />
-                      <div className="text-zinc-300 group-hover:text-white transition-all duration-400 group-hover:scale-110 drop-shadow-md pointer-events-none">
-                        {renderIcon(btn.iconName, 'w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7')}
+                      {/* Shadow */}
+                      <div
+                        className="absolute inset-0 rounded-2xl transition-all duration-500 pointer-events-none"
+                        style={{
+                          boxShadow: isHovered
+                            ? `0 25px 45px -8px rgba(0, 0, 0, 0.9), 0 0 35px ${btn.accentGlow}`
+                            : '0 10px 25px -5px rgba(0, 0, 0, 0.6)',
+                        }}
+                      />
+
+                      {/* Button Surface */}
+                      <div className="relative z-10 flex items-center justify-center w-full h-full rounded-2xl bg-zinc-900/80 backdrop-blur-xl border border-white/15 group-hover:border-white/40 group-hover:bg-zinc-800/85 transition-colors duration-400 overflow-hidden shadow-inner pointer-events-none">
+                        <div className="absolute top-0 inset-x-0 h-[45%] bg-gradient-to-b from-white/15 to-transparent rounded-t-2xl pointer-events-none" />
+                        <div className="text-zinc-300 group-hover:text-white transition-all duration-400 group-hover:scale-110 drop-shadow-md pointer-events-none">
+                          {renderIcon(btn.iconName, 'w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7')}
+                        </div>
                       </div>
-                    </div>
-                  </motion.a>
-                </motion.div>
-              </div>
-            );
-          })}
-        </motion.div>
+                    </motion.a>
+                  </motion.div>
+                </div>
+              );
+            })}
+          </motion.div>
+        </div>
       </motion.div>
 
       {/* Discrete Admin Shortcut Link in Bottom-Left */}
